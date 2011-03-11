@@ -1,0 +1,139 @@
+#!/usr/bin/env python
+# coding: utf-8
+import optparse
+import sys
+from os.path import split, join, exists
+from os import getcwd
+
+ISSUES = '.issues'
+OPEN = '.issues-open'
+MILESTONES = '.issues-milestones'
+LAST = '.issues-last'
+CURRENT = '.issues-current'
+SEPARATOR = ','
+
+TTYPES = ['Task', 'Bug', 'Enhancement']
+
+
+def ask_type():
+    ttype = input('Task type: 1-Task, 2-Bug, 3-Enhancement [1]: ')
+    ttype = ttype.strip().lower()
+    if ttype in {'', '1', 'task'}:
+        return 1
+    elif ttype in {'2', 'bug'}:
+        return 2
+    elif ttype in {'3', 'enhancement'}:
+        return 3
+    else:
+        return 1
+
+
+def ask_milestone(path):
+    current = open(join(path, CURRENT), 'r')
+    current_value = current.read()
+    current.close()
+    milestone = input('Milestone: [{0}]'.format(current_value)).strip()
+    if not milestone:
+        milestone = current_value
+
+    return milestone
+
+
+def add_open(path, issue_number):
+    iopen = open(join(path, OPEN), 'a')
+    iopen.write('{0}{1}'.format(issue_number, SEPARATOR))
+    iopen.close()
+
+
+def add_milestone(path, milestone, issue_number):
+    missues = open(join(path, MILESTONES), 'r')
+    lines = missues.readlines()
+    missues.close()
+    new_lines = []
+    new_line = None
+    for line in lines:
+        if new_line:
+            new_lines.append(line)
+        else:
+            line = line.strip()
+            elements = line.split(SEPARATOR)
+            if elements[0] == milestone:
+                new_line = '{0}{1}{2}\n'.format(SEPARATOR.join(elements),
+                        SEPARATOR, issue_number)
+            else:
+                new_lines.append(line + '\n')
+
+    if not new_line:
+        new_line = '{0}{1}{2}\n'.format(milestone, SEPARATOR, issue_number)
+
+    new_lines = [new_line] + new_lines
+    missues = open(join(path, MILESTONES), 'w')
+    missues.writelines(new_lines)
+    missues.close()
+
+
+def init(path):
+    open(join(path, ISSUES), 'w').close()
+    open(join(path, OPEN), 'w').close()
+    open(join(path, MILESTONES), 'w').close()
+    last = open(join(path, LAST), 'w')
+    last.write('0')
+    last.close()
+    current = open(join(path, CURRENT), 'w')
+    current.write('0.1')
+    current.close()
+
+
+def new_issue(path, title):
+    last = open(join(path, LAST), 'r')
+    issue_number = int(last.read().strip()) + 1
+    last.close()
+
+    ttype = ask_type()
+    milestone = ask_milestone(path)
+
+    issues = open(join(path, ISSUES), 'a')
+    issues.write('{0}\n{1}\n{2}\n{3}\n'.format(issue_number, title.strip(),
+        ttype, milestone))
+    issues.close()
+
+    add_open(path, issue_number)
+    add_milestone(path, milestone, issue_number)
+
+    last = open(join(path, LAST), 'w')
+    last.write('{0}'.format(issue_number))
+    last.close()
+
+
+if __name__ == '__main__':
+    parser = optparse.OptionParser(
+        usage="""Usage: git-li <command> [command-options]
+
+    Commands:
+    init        Initialize the git repositoryto use git-li
+    list        Lists issues for this repository
+    new         Creates a new issue for this repository
+    show        Shows the given issue
+    edit        edit the given issue
+    comment     Add a comment to the given issue
+    reopen      Reopen the given issue
+    close       Close the given issue""")
+
+    (options, args) = parser.parse_args()
+
+    if len(args) == 0:
+        parser.print_help()
+        sys.exit(1)
+
+    command = args[0]
+    args = args[1:]
+    path = getcwd()
+    while not exists(join(path, ".git")):
+        path, extra = split(path)
+        if not extra:
+            print("Unable to find a git repository. ")
+            sys.exit(1)
+    if command == 'init':
+        init(path)
+    elif command == 'new':
+        new_issue(path, args[0])
