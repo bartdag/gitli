@@ -9,6 +9,7 @@ ISSUES = '.issues'
 OPEN = '.issues-open'
 LAST = '.issues-last'
 CURRENT = '.issues-current'
+COMMENTS = '.issues-comments'
 MSEPARATOR = ','
 OSEPARATOR = '\n'
 
@@ -74,7 +75,7 @@ def get_open_issues(path):
     return issues
 
 
-def valid_issue(issue, filters, open_issues, milestones, tasks):
+def filter_issues(issue, filters, open_issues, milestones, tasks):
     if 'open' in filters and issue[0] not in open_issues:
         return False
 
@@ -103,7 +104,7 @@ def get_issues(path, filters, open_issues, milestones, tasks):
             lines[index + 1].strip(),
             int(lines[index + 2].strip()),
             lines[index + 3].strip())
-        if valid_issue(issue, filters, open_issues, milestones, tasks):
+        if filter_issues(issue, filters, open_issues, milestones, tasks):
             issues.append(issue)
         index += 4
 
@@ -124,6 +125,7 @@ def print_issues(issues, open_issues):
 def init(path):
     open(join(path, ISSUES), 'w').close()
     open(join(path, OPEN), 'w').close()
+    open(join(path, COMMENTS), 'w').close()
     last = open(join(path, LAST), 'w')
     last.write('0')
     last.close()
@@ -175,6 +177,12 @@ def list_issues(path, filters=None):
     print_issues(issues, open_issues)
 
 
+def reopen_issue(path, issue_number):
+    # To make sure that we don't add the issue twice... that would be bad
+    remove_open(path, issue_number)
+    add_open(path, issue_number)
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
@@ -185,9 +193,10 @@ if __name__ == '__main__':
     new         Creates a new issue for this repository
     show        Shows the given issue (todo)
     edit        edit the given issue (todo)
-    comment     Add a comment to the given issue (todo)
     reopen      Reopen the given issue (todo)
     close       Close the given issue""")
+
+    #comment     Add a comment to the given issue (todo)
 
     parser.add_option("-v", "--verbose",
             action="store_true",
@@ -216,5 +225,7 @@ if __name__ == '__main__':
         close_issue(path, args[0].strip())
     elif command == 'list':
         list_issues(path, args)
+    elif command == 'reopen':
+        reopen_issue(path, args[0].strip())
     else:
         print(command)
