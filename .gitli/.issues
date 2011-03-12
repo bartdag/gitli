@@ -1,0 +1,32 @@
+1
+add reopen command
+1
+0.1
+2
+add show command
+1
+0.1
+3
+add a milestone command to increase the current milestone
+1
+0.1
+4
+add edit command
+1
+0.1
+5
+add post-commit/publish hook when initializing the script to parse commit and automatically close issues... would be cool!
+1
+0.2
+6
+more intelligent init...
+1
+0.1
+7
+add documentation
+1
+0.1
+8
+add a .gitli directory
+1
+0.1
