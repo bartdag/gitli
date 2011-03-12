@@ -85,10 +85,32 @@ def filter_issues(issue, filters, open_issues, milestones, tasks):
     if len(milestones) > 0 and issue[3] not in milestones:
         return False
 
-    if len(tasks) > 0 and TTYPES[issue[2]-1].lower() not in tasks:
+    if len(tasks) > 0 and TTYPES[issue[2] - 1].lower() not in tasks:
         return False
 
     return True
+
+
+def get_issue(path, issue_number):
+    issues_file = open(join(path, ISSUES), 'r')
+    lines = issues_file.readlines()
+    issues_file.close()
+    size = len(lines)
+    index = 0
+    issue = None
+    while index < size:
+        issue = (
+            lines[index].strip(),
+            lines[index + 1].strip(),
+            int(lines[index + 2].strip()),
+            lines[index + 3].strip())
+        if issue[0] == issue_number:
+            break
+        else:
+            issue = None
+            index += 4
+
+    return issue
 
 
 def get_issues(path, filters, open_issues, milestones, tasks):
@@ -183,6 +205,15 @@ def reopen_issue(path, issue_number):
     add_open(path, issue_number)
 
 
+def show_issue(path, issue_number):
+    issue = get_issue(path, issue_number)
+    if issue is not None:
+        open_issues = get_open_issues(path)
+        print_issues([issue], open_issues)
+    else:
+        print('Issue #{0} not found'.format(issue_number))
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
@@ -227,5 +258,5 @@ if __name__ == '__main__':
         list_issues(path, args)
     elif command == 'reopen':
         reopen_issue(path, args[0].strip())
-    else:
-        print(command)
+    elif command == 'show':
+        show_issue(path, args[0].strip())

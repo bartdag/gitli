@@ -14,3 +14,7 @@ add a milestone command to increase the current milestone
 add edit command
 1
 0.1
+5
+add post-commit/publish hook when initializing the script to parse commit and automatically close issues... would be cool!
+1
+0.2
