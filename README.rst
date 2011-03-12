@@ -12,8 +12,11 @@ The issues are stored in the current branch of the git repository. gitli is
 spending a day looking for that kind of lightweight issue tracker for private
 projects.
 
+The script does not attempt to prevent goofs and error messages can make
+children cry.
+
 Don't hesitate to create issues in the github bug tracker if you have a feature
-request or encounter a bug.
+request or encounter a bug though.
 
 
 Installation
