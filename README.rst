@@ -1,5 +1,5 @@
-gitli - Git Lightweight Issues
-==============================
+gitli - Git Lightweight Issue Tracking System
+=============================================
 
 :Authors:
   Barthelemy Dagenais
