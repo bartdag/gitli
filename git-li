@@ -267,6 +267,13 @@ def edit_issue(path, issue_number):
         issues_file.close()
 
 
+def edit_milestone(path, milestone):
+    if milestone:
+        current_path = join(path, CURRENT)
+        current = open(current_path, 'w')
+        current.write(milestone)
+        current.close()
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
@@ -275,9 +282,10 @@ if __name__ == '__main__':
     init        Initialize the git repositoryto use git-li
     list        Lists issues for this repository
     new         Creates a new issue for this repository
-    show        Shows the given issue (todo)
-    edit        edit the given issue (todo)
-    reopen      Reopen the given issue (todo)
+    show        Shows the given issue
+    edit        Edit the given issue
+    reopen      Reopen the given issue
+    milestone   Set the current milestone
     close       Close the given issue""")
 
     #comment     Add a comment to the given issue (todo)
@@ -315,3 +323,5 @@ if __name__ == '__main__':
         show_issue(path, args[0].strip())
     elif command == 'edit':
         edit_issue(path, args[0].strip())
+    elif command == 'milestone':
+        edit_milestone(path, args[0].strip())

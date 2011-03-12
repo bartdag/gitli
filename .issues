@@ -22,3 +22,7 @@ add post-commit/publish hook when initializing the script to parse commit and au
 more intelligent init...
 1
 0.1
+7
+add documentation
+1
+0.1
