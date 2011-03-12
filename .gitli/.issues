@@ -15,7 +15,7 @@ add edit command
 1
 0.1
 5
-add post-commit/publish hook when initializing the script to parse commit and automatically close issues... would be cool!
+add post-commit hook?
 1
 0.2
 6
@@ -30,3 +30,11 @@ add documentation
 add a .gitli directory
 1
 0.1
+9
+add tests
+1
+0.2
+10
+add colorized output
+1
+0.2

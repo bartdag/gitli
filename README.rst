@@ -22,8 +22,8 @@ request or encounter a bug though.
 Installation
 ------------
 
-#. Make the git-li script executable (e.g., `chmod a+x git-li`).
-#. Add the git-li script to your path (e.g., `export PATH=$PATH:/path/to/git-li`)
+#. Make the git-li script executable (e.g., ``chmod a+x git-li``).
+#. Add the git-li script to your path (e.g., ``export PATH=$PATH:/path/to/git-li``)
 #. You are done.
 
 Usage
@@ -59,7 +59,7 @@ values:
     Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 2
     Milestone: [0.1]:
     testgitli $ git li -v new 'My Third Issue'
-    Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 3
+    Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 1
     Milestone: [0.1]: 0.2
     testgitli $ git li new 'My Fourth Issue'
 
@@ -68,10 +68,12 @@ The list command:
 ::
 
     testgitli $ git li list
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Enhancement] [0.2] - open
-    #4 My Fourth Issue [Task] [0.1] - open
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.2]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - open
+
+To colorize the output, just enter: ``git config --global add gitli.color auto``
 
 The close command:
 
@@ -79,32 +81,37 @@ The close command:
 
     testgitli $ git li close 4
     testgitli $ git li list 
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Enhancement] [0.2] - open 
-    #4 My Fourth Issue [Task] [0.1] - closed
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.2]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - closed
 
 The list command with filters:
 
 ::
 
     testgitli $ git li list open
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Enhancement] [0.2] - open 
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.2]   - open
     testgitli $ git li list close 
-    #4 My Fourth Issue [Task] [0.1] - closed 
+    #4    My Fourth Issue                                  [Task] [0.1]   - closed
     testgitli $ git li open bug 
     testgitli $ git li list open bug
-    #2 My Second Issue [Bug] [0.1] - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
     testgitli $ git li list open bug 0.1
-    #2 My Second Issue [Bug] [0.1] - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+
+The reopen command:
+
+::
+
     testgitli $ git li reopen 4 
     testgitli $ git li list 
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Enhancement] [0.2] - open 
-    #4 My Fourth Issue [Task] [0.1] - open
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.2]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - open
 
 Edit an issue (notice the use of default values):
 
@@ -115,10 +122,10 @@ Edit an issue (notice the use of default values):
     Task type: 1-Task, 2-Bug, 3-Enhancement [3]: 1 
     Milestone: [0.2]: 0.1
     testgitli $ git li list 
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Task] [0.1] - open
-    #4 My Fourth Issue [Task] [0.1] - open 
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.1]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - open
 
 Update the default milestone:
 
@@ -127,13 +134,18 @@ Update the default milestone:
     testgitli $ git li milestone 0.2
     testgitli $ git li new 'My Fifth Issue' 
     testgitli $ git li list 
-    #1 My First Issue [Task] [0.1] - open
-    #2 My Second Issue [Bug] [0.1] - open
-    #3 My Third Issue [Task] [0.1] - open
-    #4 My Fourth Issue [Task] [0.1] - open 
-    #5 My Fifth Issue [Task] [0.2] - open
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.1]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - open
+    #5    My Fifth Issue                                   [Task] [0.2]   - open
+
+The show command:
+
+::
+
     testgitli $ git li show 5 
-    #5 My Fifth Issue [Task] [0.2] - open
+    #5    My Fifth Issue                                   [Task] [0.2]   - open
 
 
 License
