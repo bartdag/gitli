@@ -5,7 +5,7 @@ gitli - Git Lightweight Issues
   Barthelemy Dagenais
 :Version: 0.1
 
-gitli is a simple git extension to manage issues for single-developer projects.
+gitli is a simple git extension to manage issues in single-developer projects.
 
 The issues are stored in the current branch of the git repository. gitli is
 **not** a distribute issue tracker. It's just a script that I wrote after
