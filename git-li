@@ -16,13 +16,17 @@ OSEPARATOR = '\n'
 TTYPES = ['Task', 'Bug', 'Enhancement']
 
 
-def ask_type(verbose=False):
+def ask_type(verbose=False, default=1):
     if not verbose:
         return 1
 
-    ttype = input('Task type: 1-Task, 2-Bug, 3-Enhancement [1]: ')
+    ttype = input('Task type: 1-Task, 2-Bug, 3-Enhancement [{0}]: '\
+            .format(default))
     ttype = ttype.strip().lower()
-    if ttype in {'', '1', 'task'}:
+
+    if not ttype:
+        return default
+    elif ttype in {'1', 'task'}:
         return 1
     elif ttype in {'2', 'bug'}:
         return 2
@@ -32,10 +36,13 @@ def ask_type(verbose=False):
         return 1
 
 
-def ask_milestone(path, verbose=False):
-    current = open(join(path, CURRENT), 'r')
-    current_value = current.read()
-    current.close()
+def ask_milestone(path, verbose=False, default=None):
+    if default is None:
+        current = open(join(path, CURRENT), 'r')
+        current_value = current.read()
+        current.close()
+    else:
+        current_value = default
 
     if not verbose:
         return current_value
@@ -228,6 +235,38 @@ def show_issue(path, issue_number):
         print('Issue #{0} not found'.format(issue_number))
 
 
+def edit_issue(path, issue_number):
+    issues = get_issues(path, [], [], [], [])
+    issue = None
+    index = -1
+    for i, temp_issue in enumerate(issues):
+        if temp_issue[0] == issue_number:
+            issue = temp_issue
+            index = i
+
+    if issue is None:
+        print('Issue #{0} unknown'.format(issue_number))
+        return
+    else:
+        title = input('Enter a new title (enter nothing to keep the same): ')
+        if not title.strip():
+            title = issue[1]
+        ttype = ask_type(True, issue[2])
+        milestone = ask_milestone(path, True, issue[3])
+        new_issue = (issue_number, title, ttype, milestone)
+
+        issues_file = open(join(path, ISSUES), 'w')
+        for i, temp_issue in enumerate(issues):
+            if i != index:
+                issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(temp_issue[0],
+                    temp_issue[1], temp_issue[2], temp_issue[3]))
+            else:
+                issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(new_issue[0],
+                    new_issue[1], new_issue[2], new_issue[3]))
+
+        issues_file.close()
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
@@ -274,3 +313,5 @@ if __name__ == '__main__':
         reopen_issue(path, args[0].strip())
     elif command == 'show':
         show_issue(path, args[0].strip())
+    elif command == 'edit':
+        edit_issue(path, args[0].strip())
