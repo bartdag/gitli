@@ -145,15 +145,29 @@ def print_issues(issues, open_issues):
 
 
 def init(path):
-    open(join(path, ISSUES), 'w').close()
-    open(join(path, OPEN), 'w').close()
-    open(join(path, COMMENTS), 'w').close()
-    last = open(join(path, LAST), 'w')
-    last.write('0')
-    last.close()
-    current = open(join(path, CURRENT), 'w')
-    current.write('0.1')
-    current.close()
+    new_path = join(path, ISSUES)
+    if not exists(new_path):
+        open(new_path, 'w').close()
+
+    new_path = join(path, OPEN)
+    if not exists(new_path):
+        open(new_path, 'w').close()
+
+    new_path = join(path, COMMENTS)
+    if not exists(new_path):
+        open(new_path, 'w').close()
+
+    new_path = join(path, LAST)
+    if not exists(new_path):
+        last = open(new_path, 'w')
+        last.write('0')
+        last.close()
+
+    new_path = join(path, CURRENT)
+    if not exists(new_path):
+        current = open(new_path, 'w')
+        current.write('0.1')
+        current.close()
 
 
 def new_issue(path, title, verbose=False):

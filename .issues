@@ -18,3 +18,7 @@ add edit command
 add post-commit/publish hook when initializing the script to parse commit and automatically close issues... would be cool!
 1
 0.2
+6
+more intelligent init...
+1
+0.1
