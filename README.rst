@@ -22,8 +22,8 @@ request or encounter a bug though.
 Installation
 ------------
 
-#. Make the git-li script executable (e.g., chmod a+x git-li).
-#. Add the git-li script to your path (e.g., export PATH=$PATH:/path/to/git-li
+#. Make the git-li script executable (e.g., `chmod a+x git-li`).
+#. Add the git-li script to your path (e.g., `export PATH=$PATH:/path/to/git-li`)
 #. You are done.
 
 Usage
