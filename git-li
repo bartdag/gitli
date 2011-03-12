@@ -3,8 +3,10 @@
 import optparse
 import sys
 from os.path import split, join, exists
-from os import getcwd
+from os import getcwd, mkdir
 
+
+GITLIDIR = '.gitli'
 ISSUES = '.issues'
 OPEN = '.issues-open'
 LAST = '.issues-last'
@@ -152,6 +154,9 @@ def print_issues(issues, open_issues):
 
 
 def init(path):
+    if not exists(path):
+        mkdir(path)
+
     new_path = join(path, ISSUES)
     if not exists(new_path):
         open(new_path, 'w').close()
@@ -309,6 +314,9 @@ if __name__ == '__main__':
         if not extra:
             print("Unable to find a git repository. ")
             sys.exit(1)
+
+
+    path = join(path, GITLIDIR)
     if command == 'init':
         init(path)
     elif command == 'new':

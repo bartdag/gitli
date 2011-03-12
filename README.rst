@@ -40,11 +40,11 @@ by gitli.
     testgitli $ git commit -m 'initial import'
     [master (root-commit) 8ef5046] initial import
       2 files changed, 2 insertions(+), 0 deletions(-)
-      create mode 100644 .issues
-      create mode 100644 .issues-comments
-      create mode 100644 .issues-current
-      create mode 100644 .issues-last
-      create mode 100644 .issues-open
+      create mode 100644 .gitli/.issues
+      create mode 100644 .gitli/.issues-comments
+      create mode 100644 .gitli/.issues-current
+      create mode 100644 .gitli/.issues-last
+      create mode 100644 .gitli/.issues-open
 
 Then, create a few issues. Notice the use of `-v` to override the default
 values:
