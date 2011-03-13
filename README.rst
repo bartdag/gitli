@@ -3,7 +3,7 @@ gitli - Git Lightweight Issue Tracking System
 
 :Authors:
   Barthelemy Dagenais
-:Version: 0.2
+:Version: 0.3
 
 gitli is a simple git extension to manage issues in single-developer projects.
 
@@ -22,7 +22,7 @@ request or encounter a bug though.
 Requirements
 ------------
 
-This script has been tested on Python 2.6, 2.7, 3.1, and 3.2.
+This script has been tested with Python 2.7, 3.1, and 3.2.
 
 
 Installation
