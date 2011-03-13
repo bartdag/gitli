@@ -8,7 +8,7 @@ gitli - Git Lightweight Issue Tracking System
 gitli is a simple git extension to manage issues in single-developer projects.
 
 The issues are stored in the current branch of the git repository. gitli is
-**not** a distribute issue tracker. It's just a script that I wrote after
+**not** a distributed issue tracker. It's just a script that I wrote after
 spending a day looking for that kind of lightweight issue tracker for private
 projects.
 

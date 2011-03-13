@@ -17,7 +17,7 @@ add edit command
 5
 add post-commit hook?
 1
-0.3
+0.4
 6
 more intelligent init...
 1
@@ -33,7 +33,7 @@ add a .gitli directory
 9
 add tests
 1
-0.3
+0.4
 10
 add colorized output
 1
@@ -41,12 +41,16 @@ add colorized output
 11
 display current milestone if no arg
 1
-0.2
+0.3
 12
 add a setup.py
 1
-0.2
+0.3
 13
 alias add to new
 1
-0.2
+0.3
+14
+add default list command
+1
+0.4
