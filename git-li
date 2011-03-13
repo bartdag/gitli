@@ -332,15 +332,25 @@ if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
 
-    Commands:
-    init        Initialize the git repositoryto use git-li
-    list        List issues for this repository
-    new         Create a new issue for this repository
-    show        Show the given issue
-    edit        Edit the given issue
-    reopen      Reopen the given issue
-    milestone   Set the current milestone
-    close       Close the given issue""")
+Commands:
+  init               Initialize the git repositoryto use git-li
+  list <PATTERN...>  List issues for this repository
+  new  <TITLE>       Create a new issue for this repository
+  show <NUMBER>      Show the given issue
+  edit <NUMBER>      Edit the given issue
+  reopen <NUMBER>    Reopen the given issue
+  milestone          Show the current milestone
+  milestone <MILE>   Set the current milestone
+  close <NUMBER>     Close the given issue
+  
+A few examples:
+  git li init
+
+  git li new 'My First Issue'
+
+  git li close 1
+
+  git li list open task 0.1""")
 
     #comment     Add a comment to the given issue (todo)
 
