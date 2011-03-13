@@ -319,6 +319,15 @@ def edit_milestone(path, milestone):
         current.write(milestone)
         current.close()
 
+
+def show_milestone(path):
+    current_path = join(path, CURRENT)
+    current = open(current_path, 'r')
+    milestone = current.read().strip()
+    current.close()
+    print('The current milestone is {0}'.format(milestone))
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
@@ -375,4 +384,7 @@ if __name__ == '__main__':
     elif command == 'edit':
         edit_issue(path, args[0].strip())
     elif command == 'milestone':
-        edit_milestone(path, args[0].strip())
+        if len(args) == 0:
+            show_milestone(path)
+        else:
+            edit_milestone(path, args[0].strip())
