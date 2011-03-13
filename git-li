@@ -344,10 +344,11 @@ if __name__ == '__main__':
 
     #comment     Add a comment to the given issue (todo)
 
-    parser.add_option("-v", "--verbose",
+    parser.add_option("-e", "--edit",
             action="store_true",
-            dest="verbose",
-            default=False)
+            dest="edit",
+            default=False,
+            help='change issue type and milestone when adding a new issue.')
 
     (options, args) = parser.parse_args()
 
@@ -372,7 +373,7 @@ if __name__ == '__main__':
     if command == 'init':
         init(path)
     elif command in {'new','add'}:
-        new_issue(path, args[0].strip(), options.verbose)
+        new_issue(path, args[0].strip(), options.edit)
     elif command == 'close':
         close_issue(path, args[0].strip())
     elif command == 'list':

@@ -55,16 +55,16 @@ by gitli.
       create mode 100644 .gitli/.issues-last
       create mode 100644 .gitli/.issues-open
 
-Then, create a few issues. Notice the use of `-v` to override the default
+Then, create a few issues. Notice the use of `-e` to override the default
 values:
 
 ::
 
     testgitli $ git li new 'My First Issue'
-    testgitli $ git li -v new 'My Second Issue'
+    testgitli $ git li -e new 'My Second Issue'
     Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 2
     Milestone: [0.1]:
-    testgitli $ git li -v new 'My Third Issue'
+    testgitli $ git li -e new 'My Third Issue'
     Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 1
     Milestone: [0.1]: 0.2
     testgitli $ git li new 'My Fourth Issue'
