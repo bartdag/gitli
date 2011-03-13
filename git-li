@@ -334,9 +334,9 @@ if __name__ == '__main__':
 
     Commands:
     init        Initialize the git repositoryto use git-li
-    list        Lists issues for this repository
-    new         Creates a new issue for this repository
-    show        Shows the given issue
+    list        List issues for this repository
+    new         Create a new issue for this repository
+    show        Show the given issue
     edit        Edit the given issue
     reopen      Reopen the given issue
     milestone   Set the current milestone
@@ -371,7 +371,7 @@ if __name__ == '__main__':
     path = join(path, GITLIDIR)
     if command == 'init':
         init(path)
-    elif command == 'new':
+    elif command in {'new','add'}:
         new_issue(path, args[0].strip(), options.verbose)
     elif command == 'close':
         close_issue(path, args[0].strip())

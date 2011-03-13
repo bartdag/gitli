@@ -54,3 +54,11 @@ alias add to new
 add default list command
 1
 0.4
+15
+add milestone option to move all opened tasks to new milestone
+1
+0.4
+16
+rename -v to -e
+1
+0.3
