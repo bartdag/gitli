@@ -38,3 +38,15 @@ add tests
 add colorized output
 1
 0.2
+11
+display current milestone if no arg
+1
+0.2
+12
+add a setup.py
+1
+0.2
+13
+alias add to new
+1
+0.2
