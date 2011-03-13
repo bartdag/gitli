@@ -319,26 +319,46 @@ def edit_milestone(path, milestone):
         current.write(milestone)
         current.close()
 
+
+def show_milestone(path):
+    current_path = join(path, CURRENT)
+    current = open(current_path, 'r')
+    milestone = current.read().strip()
+    current.close()
+    print('The current milestone is {0}'.format(milestone))
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser(
         usage="""Usage: git-li <command> [command-options]
 
-    Commands:
-    init        Initialize the git repositoryto use git-li
-    list        Lists issues for this repository
-    new         Creates a new issue for this repository
-    show        Shows the given issue
-    edit        Edit the given issue
-    reopen      Reopen the given issue
-    milestone   Set the current milestone
-    close       Close the given issue""")
+Commands:
+  init               Initialize the git repositoryto use git-li
+  list <PATTERN...>  List issues for this repository
+  new  <TITLE>       Create a new issue for this repository
+  show <NUMBER>      Show the given issue
+  edit <NUMBER>      Edit the given issue
+  reopen <NUMBER>    Reopen the given issue
+  milestone          Show the current milestone
+  milestone <MILE>   Set the current milestone
+  close <NUMBER>     Close the given issue
+  
+A few examples:
+  git li init
+
+  git li new 'My First Issue'
+
+  git li close 1
+
+  git li list open task 0.1""")
 
     #comment     Add a comment to the given issue (todo)
 
-    parser.add_option("-v", "--verbose",
+    parser.add_option("-e", "--edit",
             action="store_true",
-            dest="verbose",
-            default=False)
+            dest="edit",
+            default=False,
+            help='change issue type and milestone when adding a new issue.')
 
     (options, args) = parser.parse_args()
 
@@ -362,8 +382,8 @@ if __name__ == '__main__':
     path = join(path, GITLIDIR)
     if command == 'init':
         init(path)
-    elif command == 'new':
-        new_issue(path, args[0].strip(), options.verbose)
+    elif command in {'new','add'}:
+        new_issue(path, args[0].strip(), options.edit)
     elif command == 'close':
         close_issue(path, args[0].strip())
     elif command == 'list':
@@ -375,4 +395,7 @@ if __name__ == '__main__':
     elif command == 'edit':
         edit_issue(path, args[0].strip())
     elif command == 'milestone':
-        edit_milestone(path, args[0].strip())
+        if len(args) == 0:
+            show_milestone(path)
+        else:
+            edit_milestone(path, args[0].strip())

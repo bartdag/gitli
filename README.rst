@@ -3,12 +3,12 @@ gitli - Git Lightweight Issue Tracking System
 
 :Authors:
   Barthelemy Dagenais
-:Version: 0.2
+:Version: 0.3
 
 gitli is a simple git extension to manage issues in single-developer projects.
 
 The issues are stored in the current branch of the git repository. gitli is
-**not** a distribute issue tracker. It's just a script that I wrote after
+**not** a distributed issue tracker. It's just a script that I wrote after
 spending a day looking for that kind of lightweight issue tracker for private
 projects.
 
@@ -22,7 +22,7 @@ request or encounter a bug though.
 Requirements
 ------------
 
-This script has been tested on Python 2.6, 2.7, 3.1, and 3.2.
+This script has been tested with Python 2.7, 3.1, and 3.2.
 
 
 Installation
@@ -55,16 +55,16 @@ by gitli.
       create mode 100644 .gitli/.issues-last
       create mode 100644 .gitli/.issues-open
 
-Then, create a few issues. Notice the use of `-v` to override the default
+Then, create a few issues. Notice the use of `-e` to override the default
 values:
 
 ::
 
     testgitli $ git li new 'My First Issue'
-    testgitli $ git li -v new 'My Second Issue'
+    testgitli $ git li -e new 'My Second Issue'
     Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 2
     Milestone: [0.1]:
-    testgitli $ git li -v new 'My Third Issue'
+    testgitli $ git li -e new 'My Third Issue'
     Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 1
     Milestone: [0.1]: 0.2
     testgitli $ git li new 'My Fourth Issue'
