@@ -36,7 +36,7 @@ COMMENTS = '.issues-comments'
 MSEPARATOR = ','
 OSEPARATOR = '\n'
 
-TTYPES = ['Task', 'Bug', 'Enhancement']
+ITYPES = ['Task', 'Bug', 'Enhancement']
 
 
 class BColors:
@@ -57,6 +57,9 @@ class BColors:
 
 
 def is_colored_output():
+    '''
+    :return: True if gitli.color is on in the git config.
+    '''
     try:
         value = check_output(COLOR).strip().lower().decode('utf-8')
         return value in ('auto', 'on', 'true')
@@ -65,10 +68,17 @@ def is_colored_output():
 
 
 def ask_type(verbose=False, default=1):
+    '''Asks the user what type of issue to create.
+    
+    :verbose: If False, the default type is returned without asking the user.
+    :default: The default issue type.
+    :return: The issue type selected by the user or the default one if verbose
+    is False.
+    '''
     if not verbose:
         return 1
 
-    ttype = rinput('Task type: 1-Task, 2-Bug, 3-Enhancement [{0}]: '\
+    ttype = rinput('Issue type: 1-Task, 2-Bug, 3-Enhancement [{0}]: '\
             .format(default))
     ttype = ttype.strip().lower()
 
@@ -85,6 +95,16 @@ def ask_type(verbose=False, default=1):
 
 
 def ask_milestone(path, verbose=False, default=None):
+    '''Asks the user what milestone to associate the issue with.
+    
+    :param path: The path to the .gitli directory.
+    :param verbose: If False, the default milestone is returned without asking
+    the user.
+    :param default: The default milestone. If None, the current milestone is
+    provided as the default.
+    :return: The milestone selected by th euser or the default one if verbose
+    is False.
+    '''
     if default is None:
         current = open(join(path, CURRENT), 'r')
         current_value = current.read()
@@ -103,12 +123,22 @@ def ask_milestone(path, verbose=False, default=None):
 
 
 def add_open(path, issue_number):
+    '''Add a new issue to the open list.
+    
+    :param path: The path to the .gitli directory.
+    :param issue_number: The issue to open.
+    '''
     iopen = open(join(path, OPEN), 'a')
     iopen.write('{0}{1}'.format(issue_number, OSEPARATOR))
     iopen.close()
 
 
 def remove_open(path, issue_number):
+    '''Remove an issue number from the issues-open file.
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The issue to close.
+    '''
     iopen = open(join(path, OPEN), 'r')
     issues = iopen.read().split(OSEPARATOR)
     iopen.close()
@@ -122,7 +152,10 @@ def remove_open(path, issue_number):
 
 
 def get_open_issues(path):
-
+    '''
+    :param path: The path to the .gitli directory.
+    :return: A list of issue numbers that are open.
+    '''
     iopen = open(join(path, OPEN), 'r')
     issues = iopen.read().split(OSEPARATOR)
     iopen.close()
@@ -130,7 +163,20 @@ def get_open_issues(path):
     return issues
 
 
-def filter_issues(issue, filters, open_issues, milestones, tasks):
+def filter_issues(issue, filters, open_issues, milestones, itypes):
+    '''Indicate whether or not an issue should be displayed (True) or not
+    (False).
+    :param issue: The issue tuple to filter.
+    (issue_number, title, issue_type, milestone)
+    :param filters: A list of filters, [str]. e.g., 'close', '0.1', 'task'.
+    :param open_issues: A list of the issue numbers that are open. [str]
+    :param milestones: A list of milestones, [str], that the issue must be
+    associated with. If empty, the issue milestone is not checked.
+    :param itypes: A list of issue types, [str], used to filter the issue. If
+    the list is empty, the issue type is not checked.
+    :return: True if the issue passes all filters and can be displayed. False
+    otherwise.
+    '''
     if 'open' in filters and issue[0] not in open_issues:
         return False
 
@@ -140,13 +186,20 @@ def filter_issues(issue, filters, open_issues, milestones, tasks):
     if len(milestones) > 0 and issue[3] not in milestones:
         return False
 
-    if len(tasks) > 0 and TTYPES[issue[2] - 1].lower() not in tasks:
+    if len(itypes) > 0 and ITYPES[issue[2] - 1].lower() not in itypes:
         return False
 
     return True
 
 
 def get_issue(path, issue_number):
+    '''Return a tuple (issue_number, title, issue_type, milestone).
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to retrieve.
+    :return: A tuple representing the issue or None if not found.
+    '''
+
     issues_file = open(join(path, ISSUES), 'r')
     lines = issues_file.readlines()
     issues_file.close()
@@ -168,7 +221,19 @@ def get_issue(path, issue_number):
     return issue
 
 
-def get_issues(path, filters, open_issues, milestones, tasks):
+def get_issues(path, filters, open_issues, milestones, itypes):
+    '''Returns a list of issues that match the filters.
+    [(issue_number, title, issue_type, milestone)]
+
+    :param path: The path to the .gitli directory.
+    :param filters: A list of filters, [str]. e.g., 'close', '0.1', 'task'.
+    :param open_issues: A list of the issue numbers that are open. [str]
+    :param milestones: A list of milestones, [str], that the issue must be
+    associated with. If empty, the issue milestone is not checked.
+    :param itypes: A list of issue types, [str], used to filter the issue. If
+    the list is empty, the issue type is not checked.
+    :return: A list of issue tuples matching the filters.
+    '''
     issues_file = open(join(path, ISSUES), 'r')
     lines = issues_file.readlines()
     issues_file.close()
@@ -181,7 +246,7 @@ def get_issues(path, filters, open_issues, milestones, tasks):
             lines[index + 1].strip(),
             int(lines[index + 2].strip()),
             lines[index + 3].strip())
-        if filter_issues(issue, filters, open_issues, milestones, tasks):
+        if filter_issues(issue, filters, open_issues, milestones, itypes):
             issues.append(issue)
         index += 4
 
@@ -189,7 +254,14 @@ def get_issues(path, filters, open_issues, milestones, tasks):
 
 
 def print_issues(issues, open_issues, bcolor):
-    for (number, title, task_id, milestone) in issues:
+    '''Prints the issues on stdout.
+    [(issue_number, title, issue_type, milestone)]
+
+    :param issues: The list of tuples representing the issues to print.
+    :param open_issues: The list of the issue numbers that are open.
+    :param bcolor: An instance of the BColors class used to colorize the output.
+    '''
+    for (number, title, type_id, milestone) in issues:
         if number in open_issues:
             open_text = 'open'
             color = bcolor.YELLOW
@@ -198,14 +270,18 @@ def print_issues(issues, open_issues, bcolor):
             color = bcolor.GREEN
 
         milestone_text = '[' + milestone + ']'
-        task_text = '[' + TTYPES[task_id - 1] + ']'
+        type_text = '[' + ITYPES[type_id - 1] + ']'
 
         print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
-            .format(number, title, task_text, milestone_text, open_text,
+            .format(number, title, type_text, milestone_text, open_text,
             bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
 
 
 def init(path):
+    '''Initialize the .gitli directory by creating the gitli files.
+
+    :param path: The path to the .gitli directory.
+    '''
     if not exists(path):
         mkdir(path)
 
@@ -235,6 +311,14 @@ def init(path):
 
 
 def new_issue(path, title, verbose=False):
+    '''Creates a new issue: add the issue to the issues file, add the issue
+    number to the issues-open file, and increment the last issue number in
+    issues-last.
+
+    :param path: The path to the .gitli directory.
+    :param title: The title of the issue.
+    :param verbose: If True, ask the user for the issue type and milestone.
+    '''
     last = open(join(path, LAST), 'r')
     issue_number = int(last.read().strip()) + 1
     last.close()
@@ -255,10 +339,21 @@ def new_issue(path, title, verbose=False):
 
 
 def close_issue(path, issue_number):
+    '''Closes the issue by removing its number from the issues-open file.
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to close.
+    '''
     remove_open(path, issue_number)
 
 
 def list_issues(path, filters=None, bcolor=BColors()):
+    '''Prints a list of issues matching the provided filters.
+
+    :param path: The path to the .gitli directory.
+    :param filters: A list of filters such as ['open', '0.1', 'task']
+    :param bcolor: An instance of the BColors class to colorize the output.
+    '''
     if filters is None:
         filters = []
     else:
@@ -266,24 +361,36 @@ def list_issues(path, filters=None, bcolor=BColors()):
 
     open_issues = get_open_issues(path)
 
-    tasks = [ifilter for ifilter in filters if ifilter in
+    itypes = [ifilter for ifilter in filters if ifilter in
         ('task', 'bug', 'enhancement')]
 
     milestones = [ifilter for ifilter in filters if ifilter not in
         ('open', 'close', 'task', 'bug', 'enhancement')]
 
-    issues = get_issues(path, filters, open_issues, milestones, tasks)
+    issues = get_issues(path, filters, open_issues, milestones, itypes)
 
     print_issues(issues, open_issues, bcolor)
 
 
 def reopen_issue(path, issue_number):
+    '''Reopens an issue by adding its number back to the issues-open file.
+    If the issue is already opened, this operation does nothing.
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to reopen.
+    '''
     # To make sure that we don't add the issue twice... that would be bad
     remove_open(path, issue_number)
     add_open(path, issue_number)
 
 
 def show_issue(path, issue_number, bcolor=BColors()):
+    '''Prints information about an issue.
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to display.
+    :param bcolor: A BColors instance to colorize the output.
+    '''
     issue = get_issue(path, issue_number)
     if issue is not None:
         open_issues = get_open_issues(path)
@@ -293,6 +400,12 @@ def show_issue(path, issue_number, bcolor=BColors()):
 
 
 def edit_issue(path, issue_number):
+    '''Enables the user to edit an issue by asking several questions (title,
+    issue type, milestone).
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to edit.
+    '''
     issues = get_issues(path, [], [], [], [])
     issue = None
     index = -1
@@ -325,6 +438,11 @@ def edit_issue(path, issue_number):
 
 
 def edit_milestone(path, milestone):
+    '''Changes the current milestone by overwriting the issues-current file.
+
+    :param path: The path of the .gitli directory.
+    :param milestone: The new current milestone, e.g., '0.1'
+    '''
     if milestone:
         current_path = join(path, CURRENT)
         current = open(current_path, 'w')
@@ -333,6 +451,10 @@ def edit_milestone(path, milestone):
 
 
 def show_milestone(path):
+    '''Prints the current milestone.
+
+    :param path: The path of the .gitli directory.
+    '''
     current_path = join(path, CURRENT)
     current = open(current_path, 'r')
     milestone = current.read().strip()
