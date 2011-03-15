@@ -22,6 +22,7 @@ children cry.
       author_email='barthe@users.sourceforge.net',
       license='BSD License',
       url='https://github.com/bartdag/gitli',
+      py_modules=['gitli'],
       scripts=['git-li'],
       classifiers=[
           'Intended Audience :: Developers',
