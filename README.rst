@@ -22,11 +22,15 @@ request or encounter a bug though.
 Requirements
 ------------
 
-This script has been tested with Python 2.7, 3.1, and 3.2.
+gitli has been tested with Python 2.6, 2.7, 3.1, and 3.2.
 
 
 Installation
 ------------
+
+Use pip or easy_install: ``easy_install gitli``
+
+Alternatively:
 
 #. Make the git-li script executable (e.g., ``chmod a+x git-li``).
 #. Add the git-li script to your path (e.g., ``export PATH=$PATH:/path/to/git-li``)
