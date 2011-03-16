@@ -437,6 +437,21 @@ def edit_issue(path, issue_number):
         issues_file.close()
 
 
+def remove_an_issue(path, issue_number):
+    '''Removes an issue from the issues file.
+
+    :param path: The path to the .gitli directory.
+    :param issue_number: The number of the issue to remove.
+    '''
+    issues = get_issues(path, [], [], [], [])
+    with open(join(path, ISSUES), 'w') as issues_file:
+        for issue in issues:
+            if issue[0] != issue_number:
+                issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(issue[0],
+                    issue[1], issue[2], issue[3]))
+
+
+
 def edit_milestone(path, milestone):
     '''Changes the current milestone by overwriting the issues-current file.
 
@@ -460,6 +475,17 @@ def show_milestone(path):
     milestone = current.read().strip()
     current.close()
     print('The current milestone is {0}'.format(milestone))
+
+
+def remove_issue(path, issue_number):
+    '''Removes an issue by removing its number for the issues-open file and all
+    its information from the issues file.
+
+    :param path: The path of the .gitli directory.
+    :param issue_number: The number of the issue to remove.
+    '''
+    remove_open(path, issue_number)
+    remove_an_issue(path, issue_number)
 
 
 def main(options, args, parser):
@@ -495,6 +521,8 @@ def main(options, args, parser):
         show_issue(path, args[0].strip(), bcolor)
     elif command == 'edit':
         edit_issue(path, args[0].strip())
+    elif command in ('remove', 'delete'):
+        remove_issue(path, args[0].strip())
     elif command == 'milestone':
         if len(args) == 0:
             show_milestone(path)
