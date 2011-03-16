@@ -12,7 +12,7 @@ The issues are stored in the current branch of the git repository. gitli is
 spending a day looking for that kind of lightweight issue tracker for private
 projects.
 
-The script does not attempt to prevent goofs and error messages can make
+The script does not attempt to prevent goofs, and error messages can make
 children cry.
 
 Don't hesitate to create issues in the github bug tracker if you have a feature
@@ -39,8 +39,8 @@ Alternatively:
 Usage
 -----
 
-First, create a git repository and then, init git li. Notice the files created
-by gitli.
+First, create a git repository and then, initialize git li. Notice the files
+created by gitli.
 
 ::
 
@@ -66,10 +66,10 @@ values:
 
     testgitli $ git li new 'My First Issue'
     testgitli $ git li -e new 'My Second Issue'
-    Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 2
+    Issue type: 1-Task, 2-Bug, 3-Enhancement [1]: 2
     Milestone: [0.1]:
     testgitli $ git li -e new 'My Third Issue'
-    Task type: 1-Task, 2-Bug, 3-Enhancement [1]: 1
+    Issue type: 1-Task, 2-Bug, 3-Enhancement [1]: 1
     Milestone: [0.1]: 0.2
     testgitli $ git li new 'My Fourth Issue'
 
@@ -129,7 +129,7 @@ Edit an issue (notice the use of default values):
 
     testgitli $ git li edit 3 
     Enter a new title (enter nothing to keep the same):
-    Task type: 1-Task, 2-Bug, 3-Enhancement [3]: 1 
+    Issue type: 1-Task, 2-Bug, 3-Enhancement [3]: 1 
     Milestone: [0.2]: 0.1
     testgitli $ git li list 
     #1    My First Issue                                   [Task] [0.1]   - open
@@ -157,8 +157,20 @@ The show command:
     testgitli $ git li show 5 
     #5    My Fifth Issue                                   [Task] [0.2]   - open
 
+The remove command:
+
+::
+
+    testgitli $ git li remove 5
+    testgitli $ git li list
+    #1    My First Issue                                   [Task] [0.1]   - open
+    #2    My Second Issue                                  [Bug]  [0.1]   - open
+    #3    My Third Issue                                   [Task] [0.1]   - open
+    #4    My Fourth Issue                                  [Task] [0.1]   - open
+
 
 License
 -------
 
-This software is licensed under the `New BSD License`. See the `LICENSE` file in the top distribution directory for the full license text.
+This software is licensed under the `New BSD License`. See the `LICENSE` file
+in the for the full license text.
