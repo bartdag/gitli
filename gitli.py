@@ -4,6 +4,7 @@
 # For python 2 compatibility
 from __future__ import unicode_literals
 import sys
+from codecs import open
 from os.path import split, join, exists
 from os import getcwd, mkdir
 import subprocess
@@ -106,9 +107,8 @@ def ask_milestone(path, verbose=False, default=None):
     is False.
     '''
     if default is None:
-        current = open(join(path, CURRENT), 'r')
-        current_value = current.read()
-        current.close()
+        with open(join(path, CURRENT), 'r', encoding='utf-8') as current:
+            current_value = current.read()
     else:
         current_value = default
 
@@ -128,9 +128,8 @@ def add_open(path, issue_number):
     :param path: The path to the .gitli directory.
     :param issue_number: The issue to open.
     '''
-    iopen = open(join(path, OPEN), 'a')
-    iopen.write('{0}{1}'.format(issue_number, OSEPARATOR))
-    iopen.close()
+    with open(join(path, OPEN), 'a', encoding='utf-8') as iopen:
+        iopen.write('{0}{1}'.format(issue_number, OSEPARATOR))
 
 
 def remove_open(path, issue_number):
@@ -139,16 +138,14 @@ def remove_open(path, issue_number):
     :param path: The path to the .gitli directory.
     :param issue_number: The issue to close.
     '''
-    iopen = open(join(path, OPEN), 'r')
-    issues = iopen.read().split(OSEPARATOR)
-    iopen.close()
+    with open(join(path, OPEN), 'r', encoding='utf-8') as iopen:
+        issues = iopen.read().split(OSEPARATOR)
 
     new_issues = OSEPARATOR.join((issue for issue in issues if issue !=
         issue_number))
 
-    iopen = open(join(path, OPEN), 'w')
-    iopen.write(new_issues)
-    iopen.close()
+    with open(join(path, OPEN), 'w', encoding='utf-8') as iopen:
+        iopen.write(new_issues)
 
 
 def get_open_issues(path):
@@ -156,9 +153,8 @@ def get_open_issues(path):
     :param path: The path to the .gitli directory.
     :return: A list of issue numbers that are open.
     '''
-    iopen = open(join(path, OPEN), 'r')
-    issues = iopen.read().split(OSEPARATOR)
-    iopen.close()
+    with open(join(path, OPEN), 'r', encoding='utf-8') as iopen:
+        issues = iopen.read().split(OSEPARATOR)
 
     return issues
 
@@ -200,9 +196,8 @@ def get_issue(path, issue_number):
     :return: A tuple representing the issue or None if not found.
     '''
 
-    issues_file = open(join(path, ISSUES), 'r')
-    lines = issues_file.readlines()
-    issues_file.close()
+    with open(join(path, ISSUES), 'r', encoding='utf-8') as issues_file:
+        lines = issues_file.readlines()
     size = len(lines)
     index = 0
     issue = None
@@ -234,9 +229,8 @@ def get_issues(path, filters, open_issues, milestones, itypes):
     the list is empty, the issue type is not checked.
     :return: A list of issue tuples matching the filters.
     '''
-    issues_file = open(join(path, ISSUES), 'r')
-    lines = issues_file.readlines()
-    issues_file.close()
+    with open(join(path, ISSUES), 'r', encoding='utf-8') as issues_file:
+        lines = issues_file.readlines()
     issues = []
     size = len(lines)
     index = 0
@@ -287,27 +281,25 @@ def init(path):
 
     new_path = join(path, ISSUES)
     if not exists(new_path):
-        open(new_path, 'w').close()
+        open(new_path, 'w', encoding='utf-8').close()
 
     new_path = join(path, OPEN)
     if not exists(new_path):
-        open(new_path, 'w').close()
+        open(new_path, 'w', encoding='utf-8').close()
 
     new_path = join(path, COMMENTS)
     if not exists(new_path):
-        open(new_path, 'w').close()
+        open(new_path, 'w', encoding='utf-8').close()
 
     new_path = join(path, LAST)
     if not exists(new_path):
-        last = open(new_path, 'w')
-        last.write('0')
-        last.close()
+        with open(new_path, 'w', encoding='utf-8') as last:
+            last.write('0')
 
     new_path = join(path, CURRENT)
     if not exists(new_path):
-        current = open(new_path, 'w')
-        current.write('0.1')
-        current.close()
+        with open(new_path, 'w', encoding='utf-8') as current:
+            current.write('0.1')
 
 
 def new_issue(path, title, verbose=False):
@@ -319,23 +311,20 @@ def new_issue(path, title, verbose=False):
     :param title: The title of the issue.
     :param verbose: If True, ask the user for the issue type and milestone.
     '''
-    last = open(join(path, LAST), 'r')
-    issue_number = int(last.read().strip()) + 1
-    last.close()
+    with open(join(path, LAST), 'r', encoding='utf-8') as last:
+        issue_number = int(last.read().strip()) + 1
 
     ttype = ask_type(verbose)
     milestone = ask_milestone(path, verbose)
 
-    issues = open(join(path, ISSUES), 'a')
-    issues.write('{0}\n{1}\n{2}\n{3}\n'.format(issue_number, title,
-        ttype, milestone))
-    issues.close()
+    with open(join(path, ISSUES), 'a', encoding='utf-8') as issues:
+        issues.write('{0}\n{1}\n{2}\n{3}\n'.format(issue_number, title,
+            ttype, milestone))
 
     add_open(path, issue_number)
 
-    last = open(join(path, LAST), 'w')
-    last.write('{0}'.format(issue_number))
-    last.close()
+    with open(join(path, LAST), 'w', encoding='utf-8') as last:
+        last.write('{0}'.format(issue_number))
 
 
 def close_issue(path, issue_number):
@@ -425,16 +414,14 @@ def edit_issue(path, issue_number):
         milestone = ask_milestone(path, True, issue[3])
         new_issue = (issue_number, title, ttype, milestone)
 
-        issues_file = open(join(path, ISSUES), 'w')
-        for i, temp_issue in enumerate(issues):
-            if i != index:
-                issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(temp_issue[0],
-                    temp_issue[1], temp_issue[2], temp_issue[3]))
-            else:
-                issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(new_issue[0],
-                    new_issue[1], new_issue[2], new_issue[3]))
-
-        issues_file.close()
+        with open(join(path, ISSUES), 'w', encoding='utf-8') as issues_file:
+            for i, temp_issue in enumerate(issues):
+                if i != index:
+                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(temp_issue[0],
+                        temp_issue[1], temp_issue[2], temp_issue[3]))
+                else:
+                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(new_issue[0],
+                        new_issue[1], new_issue[2], new_issue[3]))
 
 
 def remove_an_issue(path, issue_number):
@@ -444,7 +431,7 @@ def remove_an_issue(path, issue_number):
     :param issue_number: The number of the issue to remove.
     '''
     issues = get_issues(path, [], [], [], [])
-    with open(join(path, ISSUES), 'w') as issues_file:
+    with open(join(path, ISSUES), 'w', encoding='utf-8') as issues_file:
         for issue in issues:
             if issue[0] != issue_number:
                 issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(issue[0],
@@ -460,9 +447,8 @@ def edit_milestone(path, milestone):
     '''
     if milestone:
         current_path = join(path, CURRENT)
-        current = open(current_path, 'w')
-        current.write(milestone)
-        current.close()
+        with open(current_path, 'w', encoding='utf-8') as current:
+            current.write(milestone)
 
 
 def show_milestone(path):
@@ -471,9 +457,9 @@ def show_milestone(path):
     :param path: The path of the .gitli directory.
     '''
     current_path = join(path, CURRENT)
-    current = open(current_path, 'r')
-    milestone = current.read().strip()
-    current.close()
+    with open(current_path, 'r', encoding='utf-8') as current:
+        milestone = current.read().strip()
+
     print('The current milestone is {0}'.format(milestone))
 
 
