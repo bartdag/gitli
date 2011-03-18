@@ -9,6 +9,8 @@ from os.path import split, join, exists
 from os import getcwd, mkdir
 import subprocess
 
+#from traceback import print_exc
+
 
 # Python Version Compatibility
 major = sys.version_info[0]
@@ -27,6 +29,10 @@ else:
 
 
 COLOR = ['git', 'config', '--get', 'gitli.color']
+LIST = ['git', 'config', '--get', 'gitli.list.option']
+
+DEFAULT_LIST_FILTER = 'all'
+
 GITLIDIR = '.gitli'
 
 ISSUES = '.issues'
@@ -68,9 +74,24 @@ def is_colored_output():
         return False
 
 
+def get_default_list_filter():
+    '''
+    :return: The default list filter specified in the git config or
+    DEFAULT_LIST_FILTER.
+    '''
+    try:
+        value = check_output(LIST)
+        if not value:
+            return DEFAULT_LIST_FILTER
+        else:
+            return value.strip().lower().decode('utf-8')
+    except Exception:
+        return DEFAULT_LIST_FILTER
+
+
 def ask_type(verbose=False, default=1):
     '''Asks the user what type of issue to create.
-    
+
     :verbose: If False, the default type is returned without asking the user.
     :default: The default issue type.
     :return: The issue type selected by the user or the default one if verbose
@@ -97,7 +118,7 @@ def ask_type(verbose=False, default=1):
 
 def ask_milestone(path, verbose=False, default=None):
     '''Asks the user what milestone to associate the issue with.
-    
+
     :param path: The path to the .gitli directory.
     :param verbose: If False, the default milestone is returned without asking
     the user.
@@ -124,7 +145,7 @@ def ask_milestone(path, verbose=False, default=None):
 
 def add_open(path, issue_number):
     '''Add a new issue to the open list.
-    
+
     :param path: The path to the .gitli directory.
     :param issue_number: The issue to open.
     '''
@@ -253,7 +274,8 @@ def print_issues(issues, open_issues, bcolor):
 
     :param issues: The list of tuples representing the issues to print.
     :param open_issues: The list of the issue numbers that are open.
-    :param bcolor: An instance of the BColors class used to colorize the output.
+    :param bcolor: An instance of the BColors class used to colorize the
+    output.
     '''
     for (number, title, type_id, milestone) in issues:
         if number in open_issues:
@@ -343,10 +365,13 @@ def list_issues(path, filters=None, bcolor=BColors()):
     :param filters: A list of filters such as ['open', '0.1', 'task']
     :param bcolor: An instance of the BColors class to colorize the output.
     '''
-    if filters is None:
-        filters = []
+    if filters is None or len(filters) == 0:
+        filters = [get_default_list_filter()]
     else:
         filters = [ifilter.strip().lower() for ifilter in filters]
+
+    if 'all' in filters:
+        filters = []
 
     open_issues = get_open_issues(path)
 
@@ -359,6 +384,9 @@ def list_issues(path, filters=None, bcolor=BColors()):
     issues = get_issues(path, filters, open_issues, milestones, itypes)
 
     print_issues(issues, open_issues, bcolor)
+
+    # Useful for testing
+    return issues
 
 
 def reopen_issue(path, issue_number):
@@ -417,11 +445,17 @@ def edit_issue(path, issue_number):
         with open(join(path, ISSUES), 'w', encoding='utf-8') as issues_file:
             for i, temp_issue in enumerate(issues):
                 if i != index:
-                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(temp_issue[0],
-                        temp_issue[1], temp_issue[2], temp_issue[3]))
+                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(
+                        temp_issue[0],
+                        temp_issue[1],
+                        temp_issue[2],
+                        temp_issue[3]))
                 else:
-                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(new_issue[0],
-                        new_issue[1], new_issue[2], new_issue[3]))
+                    issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(
+                        new_issue[0],
+                        new_issue[1],
+                        new_issue[2],
+                        new_issue[3]))
 
 
 def remove_an_issue(path, issue_number):
@@ -436,7 +470,6 @@ def remove_an_issue(path, issue_number):
             if issue[0] != issue_number:
                 issues_file.write('{0}\n{1}\n{2}\n{3}\n'.format(issue[0],
                     issue[1], issue[2], issue[3]))
-
 
 
 def edit_milestone(path, milestone):

@@ -83,7 +83,6 @@ The list command:
     #3    My Third Issue                                   [Task] [0.2]   - open
     #4    My Fourth Issue                                  [Task] [0.1]   - open
 
-To colorize the output, just enter: ``git config --global add gitli.color auto``
 
 The close command:
 
@@ -167,6 +166,16 @@ The remove command:
     #2    My Second Issue                                  [Bug]  [0.1]   - open
     #3    My Third Issue                                   [Task] [0.1]   - open
     #4    My Fourth Issue                                  [Task] [0.1]   - open
+
+
+Git Configuration Variables
+---------------------------
+
+* To colorize the output, just enter: ``git config --add gitli.color auto``
+
+* To specify a default list option, just enter: ``git config --add
+  gitli.list.option open``. The next time you call the ``list`` command without
+  any option, gitli will only display the open issues.
 
 
 License
