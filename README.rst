@@ -171,11 +171,13 @@ The remove command:
 Git Configuration Variables
 ---------------------------
 
-* To colorize the output, just enter: ``git config --add gitli.color auto``
+``git config --add gitli.color auto``
+  Colorizes the shell output.
 
-* To specify a default list option, just enter: ``git config --add
-  gitli.list.option open``. The next time you call the ``list`` command without
-  any option, gitli will only display the open issues.
+``git config --add gitli.list.option <option>`` 
+  Specifies a default list option. For example, if you choose ``open``, the
+  next time you call the ``list`` command without any option, gitli will only
+  display the open issues.
 
 
 License
