@@ -167,6 +167,56 @@ The remove command:
     #3    My Third Issue                                   [Task] [0.1]   - open
     #4    My Fourth Issue                                  [Task] [0.1]   - open
 
+Update the default milestone and move all open issues to the new milestone:
+
+::
+
+    testgitli $ git li milestone --up 0.3
+    testgitli $ git li list
+    #1    My First Issue                                   [Task] [0.3]   - open
+    #2    My Second Issue                                  [Bug]  [0.3]   - open
+    #3    My Third Issue                                   [Task] [0.3]   - open
+    #4    My Fourth Issue                                  [Task] [0.3]   - open
+
+
+Show the usage help:
+
+::
+
+    testgitli $ git-li --help
+    Usage: git-li <command> [command-options]
+
+    Commands:
+    init                      Initialize the git repositoryto use git-li
+    list <PATTERN...>         List issues for this repository
+    new  [--edit] <TITLE>     Create a new issue for this repository
+    show <NUMBER>             Show the given issue
+    edit <NUMBER>             Edit the given issue
+    reopen <NUMBER>           Reopen the given issue
+    remove <NUMBER>           Remove the given issue (removes all info)
+    milestone                 Show the current milestone
+    milestone [--up] <MILE>   Set the current milestone
+    close <NUMBER>            Close the given issue
+
+    A few examples:
+    git li init
+
+    git li new 'My First Issue'
+
+    git li close 1
+
+    git li list open task 0.1
+
+    Aliases:
+    git li new|add|open
+    git li remove|delete
+
+    Options:
+    -h, --help  show this help message and exit
+    -e, --edit  change issue type and milestone when adding a new issue.
+    -u, --up    Move all the open issues to the next milestone specified by the                                                                                                     
+                milestone command.
+
 
 Git Configuration Variables
 ---------------------------
