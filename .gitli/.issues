@@ -17,7 +17,7 @@ add edit command
 5
 add post-commit hook?
 1
-0.4
+0.5
 6
 more intelligent init...
 1
@@ -33,7 +33,7 @@ add a .gitli directory
 9
 add tests
 1
-0.4
+0.5
 10
 add colorized output
 1
@@ -64,5 +64,21 @@ rename -v to -e
 0.3
 17
 improve help text
+1
+0.3
+18
+add support for python 2.6
+1
+0.3
+19
+add explicit encoding when writing/reading file
+1
+0.3
+20
+add comments to please ohloh :-)
+1
+0.3
+21
+add a delete command
 1
 0.3
