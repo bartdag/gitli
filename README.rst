@@ -3,7 +3,7 @@ gitli - Git Lightweight Issue Tracking System
 
 :Authors:
   Barthelemy Dagenais
-:Version: 0.3
+:Version: 0.4
 
 gitli is a simple git extension to manage issues in single-developer projects.
 
