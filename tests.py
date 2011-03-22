@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import gitli
 import unittest
 import tempfile
@@ -7,22 +8,22 @@ from subprocess import call
 from collections import namedtuple
 
 
-def read_file(file_type):
+def read_file(file_type, custom_path=gitli.GITLIDIR):
     content = ''
-    with open(os.path.join(gitli.GITLIDIR, file_type)) as f:
+    with open(os.path.join(custom_path, file_type)) as f:
         content = f.read()
     return content
 
 
-def read_lines(file_type):
+def read_lines(file_type, custom_path=gitli.GITLIDIR):
     content = []
-    with open(os.path.join(gitli.GITLIDIR, file_type)) as f:
+    with open(os.path.join(custom_path, file_type)) as f:
         content = f.readlines()
     return content
 
 
-def exists(file_type):
-    return os.path.exists(os.path.join(gitli.GITLIDIR, file_type))
+def exists(file_type, custom_path=gitli.GITLIDIR):
+    return os.path.exists(os.path.join(custom_path, file_type))
 
 
 class TestGitli(unittest.TestCase):
@@ -152,8 +153,25 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('0.2', read_file(gitli.CURRENT))
 
     def test_path_option(self):
-        options = self.Options(edit=False, up=True, path='TOCHANGE')
+        new_path = os.path.join(self.tempdirpath, 'foobar')
+        options = self.Options(edit=False, up=True, path=new_path)
         call(['git', 'init'])
-        # DO SOME TEST
+        gitli.main(options, ['init', ], None)
+        gitli.main(options, ['new', 'Hello World 1'], None)
+        lines = read_lines(gitli.ISSUES, new_path)
+        self.assertEqual('1', lines[0].strip())
+        self.assertEqual('Hello World 1', lines[1].strip())
+        self.assertEqual('1', lines[2].strip())
+        self.assertEqual('0.1', lines[3].strip())
+        self.assertEqual('1', read_file(gitli.LAST, new_path))
+        lines = read_lines(gitli.OPEN, new_path)
+        self.assertEqual('1', lines[0].strip())
+
         # THEN USE GIT CONFIG
-        call(['git', 'config', '--add', 'gitli.path', 'TOCHANGE'])
+        print(gitli.get_path(options.path))
+        call(['git', 'config', '--add', 'gitli.path', new_path])
+        options = self.Options(edit=False, up=True, path='')
+        print(gitli.get_path(options.path))
+        gitli.main(options, ['milestone', '0.2'], None)
+        self.assertEqual('0.2', read_file(gitli.CURRENT, new_path))
+

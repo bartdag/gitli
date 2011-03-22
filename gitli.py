@@ -78,7 +78,7 @@ def get_path(options_path):
         return options_path
     else:
         try:
-            path = check_output(PATH).strip().lower().decode('utf-8')
+            path = check_output(PATH).decode('utf-8').strip()
             if path:
                 return path
         except Exception:
@@ -100,7 +100,7 @@ def is_colored_output():
     :rtype: True if gitli.color is on in the git config.
     '''
     try:
-        value = check_output(COLOR).strip().lower().decode('utf-8')
+        value = check_output(COLOR).decode('utf-8').strip().lower()
         return value in ('auto', 'on', 'true')
     except Exception:
         return False
@@ -116,7 +116,7 @@ def get_default_list_filter():
         if not value:
             return DEFAULT_LIST_FILTER
         else:
-            return value.strip().lower().decode('utf-8')
+            return value.decode('utf-8').strip().lower()
     except Exception:
         return DEFAULT_LIST_FILTER
 
@@ -575,8 +575,12 @@ def main(options, args, parser):
 
     command = args[0]
     args = args[1:]
-
-    path = get_path(options.path) 
+    
+    if options:
+        custom_path = options.path
+    else:
+        custom_path = None
+    path = get_path(custom_path) 
 
     if command == 'init':
         init(path)
