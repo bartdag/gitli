@@ -31,7 +31,7 @@ class TestGitli(unittest.TestCase):
         self.tempdirpath = tempfile.mkdtemp()
         os.chdir(self.tempdirpath)
         self.gitlipath = os.path.join(self.tempdirpath, gitli.GITLIDIR)
-        self.Options = namedtuple('Options', 'edit up')
+        self.Options = namedtuple('Options', 'edit up path')
         self.bcolor = gitli.BColors()
         self.bcolor.disable()
 
@@ -50,7 +50,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual(read_file(gitli.LAST), '0')
 
     def test_new(self):
-        options = self.Options(edit=False, up=False)
+        options = self.Options(edit=False, up=False, path='')
         call(['git', 'init'])
         gitli.main(None, ['init', ], None)
         gitli.main(options, ['new', 'Hello World 1'], None)
@@ -64,7 +64,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('1', lines[0].strip())
 
     def test_remove(self):
-        options = self.Options(edit=False, up=False)
+        options = self.Options(edit=False, up=False, path='')
         call(['git', 'init'])
         gitli.main(None, ['init', ], None)
         gitli.main(options, ['new', 'Hello World 1'], None)
@@ -85,7 +85,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('', read_file(gitli.OPEN).strip())
 
     def test_list_issues(self):
-        options = self.Options(edit=False, up=False)
+        options = self.Options(edit=False, up=False, path='')
         call(['git', 'init'])
         gitli.main(None, ['init', ], None)
         gitli.main(options, ['new', 'Hello World 1'], None)
@@ -102,7 +102,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual(1, len(issues))
 
     def test_list_issues_default(self):
-        options = self.Options(edit=False, up=False)
+        options = self.Options(edit=False, up=False, path='')
         call(['git', 'init'])
         call(['git', 'config', '--add', 'gitli.list.option', 'open'])
         gitli.main(None, ['init', ], None)
@@ -120,7 +120,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual(1, len(issues))
 
     def test_set_milestone(self):
-        options = self.Options(edit=False, up=False)
+        options = self.Options(edit=False, up=False, path='')
         call(['git', 'init'])
         call(['git', 'config', '--add', 'gitli.list.option', 'open'])
         gitli.main(None, ['init', ], None)
@@ -136,7 +136,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('0.2', read_file(gitli.CURRENT))
 
     def test_up(self):
-        options = self.Options(edit=False, up=True)
+        options = self.Options(edit=False, up=True, path='')
         call(['git', 'init'])
         call(['git', 'config', '--add', 'gitli.list.option', 'open'])
         gitli.main(None, ['init', ], None)
@@ -150,3 +150,10 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('0.1', lines[7].strip())
         self.assertEqual('0.2', lines[11].strip())
         self.assertEqual('0.2', read_file(gitli.CURRENT))
+
+    def test_path_option(self):
+        options = self.Options(edit=False, up=True, path='TOCHANGE')
+        call(['git', 'init'])
+        # DO SOME TEST
+        # THEN USE GIT CONFIG
+        call(['git', 'config', '--add', 'gitli.path', 'TOCHANGE'])

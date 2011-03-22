@@ -94,11 +94,11 @@ add a path variable in config
 add a comment command
 1
 0.5
-25
-make all files line-based
-1
-0.5
 26
 add a gitli-upgrade command
+1
+0.5
+27
+add a version option
 1
 0.5

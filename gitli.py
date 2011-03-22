@@ -30,6 +30,7 @@ else:
 
 COLOR = ['git', 'config', '--get', 'gitli.color']
 LIST = ['git', 'config', '--get', 'gitli.list.option']
+PATH = ['git', 'config', '--get', 'gitli.path']
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -61,6 +62,37 @@ class BColors:
         self.CYAN = ''
         self.WHITE = ''
         self.ENDC = ''
+
+
+def get_path(options_path):
+    '''Determines the path where gitli datafiles are stored.
+
+    1. Check the path option on the command line.
+    2. Check the git configuration
+    3. Use the default path <git_repos>/.gitli
+    
+    :param options_path: The path option on the cli.
+    :rtype: The path where gitli datafiles are stored
+    '''
+    if options_path:
+        return options_path
+    else:
+        try:
+            path = check_output(PATH).strip().lower().decode('utf-8')
+            if path:
+                return path
+        except Exception:
+            pass
+    
+    path = getcwd()
+    while not exists(join(path, ".git")):
+        path, extra = split(path)
+        if not extra:
+            print("Unable to find a git repository. ")
+            sys.exit(1)
+
+    path = join(path, GITLIDIR)
+    return path
 
 
 def is_colored_output():
@@ -543,14 +575,9 @@ def main(options, args, parser):
 
     command = args[0]
     args = args[1:]
-    path = getcwd()
-    while not exists(join(path, ".git")):
-        path, extra = split(path)
-        if not extra:
-            print("Unable to find a git repository. ")
-            sys.exit(1)
 
-    path = join(path, GITLIDIR)
+    path = get_path(options.path) 
+
     if command == 'init':
         init(path)
     elif command in ('new', 'add', 'open'):
