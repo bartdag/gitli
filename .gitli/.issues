@@ -102,3 +102,7 @@ add a gitli-upgrade command
 add a version option
 1
 0.5
+28
+change milestone without arg to current (or other)
+1
+0.5
