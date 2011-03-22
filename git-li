@@ -17,7 +17,7 @@ Commands:
   edit <NUMBER>             Edit the given issue
   reopen <NUMBER>           Reopen the given issue
   remove <NUMBER>           Remove the given issue (removes all info)
-  milestone                 Show the current milestone
+  current                   Show the current milestone
   milestone [--up] <MILE>   Set the current milestone
   close <NUMBER>            Close the given issue
 

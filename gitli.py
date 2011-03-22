@@ -598,8 +598,7 @@ def main(options, args, parser):
         edit_issue(path, args[0].strip())
     elif command in ('remove', 'delete'):
         remove_issue(path, args[0].strip())
+    elif command == 'current':
+        show_milestone(path)
     elif command == 'milestone':
-        if len(args) == 0:
-            show_milestone(path)
-        else:
-            edit_milestone(path, args[0].strip(), options.up)
+        edit_milestone(path, args[0].strip(), options.up)

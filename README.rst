@@ -194,7 +194,7 @@ Show the usage help:
     edit <NUMBER>             Edit the given issue
     reopen <NUMBER>           Reopen the given issue
     remove <NUMBER>           Remove the given issue (removes all info)
-    milestone                 Show the current milestone
+    current                   Show the current milestone
     milestone [--up] <MILE>   Set the current milestone
     close <NUMBER>            Close the given issue
 
@@ -212,11 +212,14 @@ Show the usage help:
     git li remove|delete
 
     Options:
-    -h, --help  show this help message and exit
-    -e, --edit  change issue type and milestone when adding a new issue.
-    -u, --up    Move all the open issues to the next milestone specified by the                                                                                                     
-                milestone command.
-
+      --version             show program's version number and exit
+      -h, --help            show this help message and exit
+      -e, --edit            change issue type and milestone when adding a new
+                            issue.
+      -u, --up              Move all the open issues to the next milestone
+                            specified by the milestone command.
+      -p PATH, --path=PATH  Use this absolute path instead of the default .gitli
+                            directory to store the gitli data files.
 
 Git Configuration Variables
 ---------------------------
