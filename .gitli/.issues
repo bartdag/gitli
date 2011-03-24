@@ -106,3 +106,7 @@ add a version option
 change milestone without arg to current (or other)
 1
 0.5
+29
+add issue number prefix based on username. should be optional.
+1
+0.5

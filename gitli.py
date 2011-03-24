@@ -31,6 +31,9 @@ else:
 COLOR = ['git', 'config', '--get', 'gitli.color']
 LIST = ['git', 'config', '--get', 'gitli.list.option']
 PATH = ['git', 'config', '--get', 'gitli.path']
+SHOW_OPTIONS = ['git', 'config', '--get', 'gitli.log.option']
+SHOW = ['git', 'log', '-E', "--grep='(refs?|closes?|fix(es)?) .*#{0}'"]
+SHOW__DEFAULT_OPTIONS = ['--stat', '--reverse']
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -64,13 +67,17 @@ class BColors:
         self.ENDC = ''
 
 
+def show_commit(issue_number):
+    pass
+
+
 def get_path(options_path):
     '''Determines the path where gitli datafiles are stored.
 
     1. Check the path option on the command line.
     2. Check the git configuration
     3. Use the default path <git_repos>/.gitli
-    
+
     :param options_path: The path option on the cli.
     :rtype: The path where gitli datafiles are stored
     '''
@@ -83,7 +90,7 @@ def get_path(options_path):
                 return path
         except Exception:
             pass
-    
+
     path = getcwd()
     while not exists(join(path, ".git")):
         path, extra = split(path)
@@ -104,6 +111,13 @@ def is_colored_output():
         return value in ('auto', 'on', 'true')
     except Exception:
         return False
+
+
+def get_default_log_options():
+    '''
+    :rtype: The default log options used by show commit.
+    '''
+    pass
 
 
 def get_default_list_filter():
@@ -575,12 +589,12 @@ def main(options, args, parser):
 
     command = args[0]
     args = args[1:]
-    
+
     if options:
         custom_path = options.path
     else:
         custom_path = None
-    path = get_path(custom_path) 
+    path = get_path(custom_path)
 
     if command == 'init':
         init(path)
