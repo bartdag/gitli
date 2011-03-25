@@ -32,8 +32,8 @@ COLOR = ['git', 'config', '--get', 'gitli.color']
 LIST = ['git', 'config', '--get', 'gitli.list.option']
 PATH = ['git', 'config', '--get', 'gitli.path']
 SHOW_OPTIONS = ['git', 'config', '--get', 'gitli.log.option']
-SHOW = ['git', 'log', '-E', "--grep='(refs?|closes?|fix(es)?) .*#{0}'"]
-SHOW__DEFAULT_OPTIONS = ['--stat', '--reverse']
+SHOW = ['git', 'log', '-E', '--grep=(refs?|closes?|fix(es)?) .*#{0}\\b']
+SHOW_DEFAULT_OPTIONS = ['--stat', '--reverse']
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -68,7 +68,12 @@ class BColors:
 
 
 def show_commit(issue_number):
-    pass
+    args = SHOW[:-1]
+    args += [SHOW[-1].format(issue_number)]
+    options = get_log_options()
+    args += options
+    print()
+    subprocess.call(args)
 
 
 def get_path(options_path):
@@ -113,11 +118,17 @@ def is_colored_output():
         return False
 
 
-def get_default_log_options():
+def get_log_options():
     '''
     :rtype: The default log options used by show commit.
     '''
-    pass
+    try:
+        options = check_output(SHOW_OPTIONS).decode('utf-8').strip()
+        if options:
+            return options.split(' ')
+    except Exception:
+        pass
+    return SHOW_DEFAULT_OPTIONS
 
 
 def get_default_list_filter():
@@ -478,7 +489,9 @@ def show_issue(path, issue_number, bcolor=BColors()):
     issue = get_issue(path, issue_number)
     if issue is not None:
         open_issues = get_open_issues(path)
+        print()
         print_issues([issue], open_issues, bcolor)
+        show_commit(issue_number)
     else:
         print('Issue #{0} not found'.format(issue_number))
 
