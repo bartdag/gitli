@@ -8,6 +8,8 @@ from codecs import open
 from os.path import split, join, exists
 from os import getcwd, mkdir
 import subprocess
+import getpass
+import re
 
 #from traceback import print_exc
 
@@ -18,8 +20,10 @@ minor = sys.version_info[1]
 
 if major < 3:
     rinput = raw_input
+    unicode = unicode
 else:
     rinput = input
+    unicode = str
 
 if major == 2 and minor == 6:
     check_output = lambda a: subprocess.Popen(a,
@@ -31,9 +35,13 @@ else:
 COLOR = ['git', 'config', '--get', 'gitli.color']
 LIST = ['git', 'config', '--get', 'gitli.list.option']
 PATH = ['git', 'config', '--get', 'gitli.path']
+TEAM_MODE = ['git', 'config', '--get', 'gitli.team.active']
+TEAM_PREFIX = ['git', 'config', '--get', 'gitli.team.user']
 SHOW_OPTIONS = ['git', 'config', '--get', 'gitli.log.option']
 SHOW = ['git', 'log', '-E', '--grep=(refs?|closes?|fix(es)?) .*#{0}\\b']
 SHOW_DEFAULT_OPTIONS = ['--stat', '--reverse']
+
+PREFIX_PATTERN = '{0}(\\d+)'
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -116,6 +124,96 @@ def is_colored_output():
         return value in ('auto', 'on', 'true')
     except Exception:
         return False
+
+
+def is_team_mode():
+    '''
+    :rtype: True if gitli.team.active is on in the git config.
+    '''
+    try:
+        value = check_output(TEAM_MODE).decode('utf-8').strip().lower()
+        return value in ('auto', 'on', 'true')
+    except Exception:
+        return False
+
+
+def get_team_prefix():
+    '''
+    :rtype: The issue number to use if team mode is on. Default value is the
+    first letter of the login name.
+    '''
+    try:
+        prefix = check_output(TEAM_PREFIX).decode('utf-8').strip()
+        if prefix:
+            return prefix
+    except Exception:
+        pass
+    return getpass.getuser()[0]
+
+
+def read_last_issue_number(path, add_one=True):
+    '''Reads the last issue number assigned to an issue. Use the prefix if the
+    team mode is on.
+
+    :param path: The path to the gitli repository.
+    :param add_one: If one needs to be added to the last issue_number.
+    :rtype: The last issue number.
+    '''
+    with open(join(path, LAST), 'r', encoding='utf-8') as last:
+        lines = last.readlines()
+
+    if not is_team_mode():
+        issue_number = int(lines[0].strip())
+        if add_one:
+            issue_number += 1
+    else:
+        prefix = get_team_prefix()
+        pattern = re.compile(PREFIX_PATTERN.format(prefix))
+        issue_number = None
+        for line in lines:
+            match = pattern.match(line.strip())
+            if match:
+                issue_number = int(match.group(1).strip())
+                break
+        if not issue_number:
+            issue_number = 0
+        if add_one:
+            issue_number += 1
+        issue_number = prefix + unicode(issue_number)
+
+    return unicode(issue_number)
+
+
+def write_last_issue_number(path, issue_number):
+    '''Writes the last issue number assigned to an issue. Use the prefix if the
+    team mode is on.
+
+    :param path: The path to the gitli repository.
+    :param issue_number: The last issue number to write.
+    '''
+    with open(join(path, LAST), 'r', encoding='utf-8') as last:
+        lines = last.readlines()
+
+    new_lines = []
+    if not is_team_mode():
+        new_lines = lines
+        new_lines[0] = '{0}\n'.format(issue_number)
+    else:
+        prefix = get_team_prefix()
+        pattern = re.compile(PREFIX_PATTERN.format(prefix))
+        searching = True
+        for line in lines:
+            match = searching and pattern.match(line.strip())
+            if match:
+                new_lines.append('{0}\n'.format(issue_number))
+                searching = False
+            else:
+                new_lines.append(line)
+        if searching:
+            new_lines.append('{0}\n'.format(issue_number))
+
+    with open(join(path, LAST), 'w', encoding='utf-8') as last:
+        last.writelines(new_lines)
 
 
 def get_log_options():
@@ -373,7 +471,7 @@ def init(path):
     new_path = join(path, LAST)
     if not exists(new_path):
         with open(new_path, 'w', encoding='utf-8') as last:
-            last.write('0')
+            last.write('0\n')
 
     new_path = join(path, CURRENT)
     if not exists(new_path):
@@ -390,8 +488,7 @@ def new_issue(path, title, verbose=False):
     :param title: The title of the issue.
     :param verbose: If True, ask the user for the issue type and milestone.
     '''
-    with open(join(path, LAST), 'r', encoding='utf-8') as last:
-        issue_number = int(last.read().strip()) + 1
+    issue_number = read_last_issue_number(path)
 
     ttype = ask_type(verbose)
     milestone = ask_milestone(path, verbose)
@@ -402,8 +499,7 @@ def new_issue(path, title, verbose=False):
 
     add_open(path, issue_number)
 
-    with open(join(path, LAST), 'w', encoding='utf-8') as last:
-        last.write('{0}'.format(issue_number))
+    write_last_issue_number(path, issue_number)
 
 
 def close_issue(path, issue_number):

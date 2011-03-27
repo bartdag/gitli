@@ -110,3 +110,11 @@ change milestone without arg to current (or other)
 add issue number prefix based on username. should be optional.
 1
 0.5
+30
+update doc for team mode
+1
+0.5
+31
+add a newline everywhere
+1
+0.5

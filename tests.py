@@ -48,7 +48,7 @@ class TestGitli(unittest.TestCase):
         self.assertTrue(exists(gitli.CURRENT))
         self.assertTrue(exists(gitli.COMMENTS))
         self.assertEqual(read_file(gitli.CURRENT), '0.1')
-        self.assertEqual(read_file(gitli.LAST), '0')
+        self.assertEqual(read_file(gitli.LAST).strip(), '0')
 
     def test_new(self):
         options = self.Options(edit=False, up=False, path='')
@@ -60,7 +60,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('Hello World 1', lines[1].strip())
         self.assertEqual('1', lines[2].strip())
         self.assertEqual('0.1', lines[3].strip())
-        self.assertEqual('1', read_file(gitli.LAST))
+        self.assertEqual('1', read_file(gitli.LAST).strip())
         lines = read_lines(gitli.OPEN)
         self.assertEqual('1', lines[0].strip())
 
@@ -75,7 +75,7 @@ class TestGitli(unittest.TestCase):
         lines = read_lines(gitli.ISSUES)
         self.assertEqual('1', lines[0].strip())
         self.assertEqual('3', lines[4].strip())
-        self.assertEqual('3', read_file(gitli.LAST))
+        self.assertEqual('3', read_file(gitli.LAST).strip())
         lines = read_lines(gitli.OPEN)
         self.assertEqual('1', lines[0].strip())
         self.assertEqual('3', lines[1].strip())
@@ -163,7 +163,7 @@ class TestGitli(unittest.TestCase):
         self.assertEqual('Hello World 1', lines[1].strip())
         self.assertEqual('1', lines[2].strip())
         self.assertEqual('0.1', lines[3].strip())
-        self.assertEqual('1', read_file(gitli.LAST, new_path))
+        self.assertEqual('1', read_file(gitli.LAST, new_path).strip())
         lines = read_lines(gitli.OPEN, new_path)
         self.assertEqual('1', lines[0].strip())
 
@@ -175,3 +175,46 @@ class TestGitli(unittest.TestCase):
         gitli.main(options, ['milestone', '0.2'], None)
         self.assertEqual('0.2', read_file(gitli.CURRENT, new_path))
 
+    def test_no_team_mode(self):
+        options = self.Options(edit=False, up=False, path='')
+        call(['git', 'init'])
+        gitli.main(options, ['init', ], None)
+        gitli.main(options, ['new', 'Hello World 1'], None)
+        self.assertFalse(gitli.is_team_mode())
+        self.assertEqual('2', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('1', read_file(gitli.LAST).strip())
+        print('PREFIX: {0}'.format(gitli.get_team_prefix()))
+        self.assertEqual(len(gitli.get_team_prefix()), 1)
+
+    def test_team_mode_on(self):
+        options = self.Options(edit=False, up=False, path='')
+        call(['git', 'init'])
+        gitli.main(options, ['init', ], None)
+        call(['git', 'config', 'gitli.team.active', 'on'])
+        call(['git', 'config', 'gitli.team.user', 'bob'])
+        self.assertTrue(gitli.is_team_mode())
+        self.assertEqual('bob1', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('0\n', read_file(gitli.LAST))
+        gitli.main(options, ['new', 'Hello World 1'], None)
+        self.assertTrue(gitli.is_team_mode())
+        self.assertEqual('bob2', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('0\nbob1\n', read_file(gitli.LAST))
+
+    def test_mixed_team_mode(self):
+        options = self.Options(edit=False, up=False, path='')
+        call(['git', 'init'])
+        gitli.main(options, ['init', ], None)
+        gitli.main(options, ['new', 'Hello World 1'], None)
+        self.assertFalse(gitli.is_team_mode())
+        self.assertEqual('2', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('1', read_file(gitli.LAST).strip())
+        call(['git', 'config', 'gitli.team.active', 'on'])
+        call(['git', 'config', 'gitli.team.user', 'bob'])
+        gitli.main(options, ['new', 'Hello World 2'], None)
+        gitli.main(options, ['new', 'Hello World 3'], None)
+        self.assertEqual('bob3', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('1\nbob2\n', read_file(gitli.LAST))
+
+
+if __name__ == '__main__':
+    unittest.main()
