@@ -80,7 +80,7 @@ def show_commit(issue_number):
     args += [SHOW[-1].format(issue_number)]
     options = get_log_options()
     args += options
-    print()
+    print('\n=== RELATED COMMITS ===\n')
     subprocess.call(args)
 
 
@@ -423,7 +423,7 @@ def get_issues(path, filters, open_issues, milestones, itypes):
     return issues
 
 
-def print_issues(issues, open_issues, bcolor):
+def print_issues(issues, open_issues, bcolor, by_line=False):
     '''Prints the issues on stdout.
     [(issue_number, title, issue_type, milestone)]
 
@@ -431,6 +431,7 @@ def print_issues(issues, open_issues, bcolor):
     :param open_issues: The list of the issue numbers that are open.
     :param bcolor: An instance of the BColors class used to colorize the
     output.
+    :param by_line: Print each issue field on a separate line.
     '''
     for (number, title, type_id, milestone) in issues:
         if number in open_issues:
@@ -443,9 +444,16 @@ def print_issues(issues, open_issues, bcolor):
         milestone_text = '[' + milestone + ']'
         type_text = '[' + ITYPES[type_id - 1] + ']'
 
-        print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
-            .format(number, title, type_text, milestone_text, open_text,
-            bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
+        if not by_line:
+            print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
+                .format(number, title, type_text, milestone_text, open_text,
+                bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
+        else:
+            print('Issue #{0}'.format(number))
+            print('Title: {0}'.format(title))
+            print('Type: {0}'.format(type_text))
+            print('Milestone: {0}'.format(milestone_text))
+            print('Status: {0}'.format(open_text))
 
 
 def init(path):
@@ -585,8 +593,8 @@ def show_issue(path, issue_number, bcolor=BColors()):
     issue = get_issue(path, issue_number)
     if issue is not None:
         open_issues = get_open_issues(path)
-        print()
-        print_issues([issue], open_issues, bcolor)
+        print('\n=== ISSUE ===\n')
+        print_issues([issue], open_issues, bcolor, True)
         show_commit(issue_number)
     else:
         print('Issue #{0} not found'.format(issue_number))
