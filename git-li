@@ -29,10 +29,10 @@ A few examples:
   git li close 1
 
   git li list open task 0.1
-  
+
 Aliases:
   git li new|add|open
-  git li remove|delete""" 
+  git li remove|delete"""
 
 VERSION = '0.4'
 

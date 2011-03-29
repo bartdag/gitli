@@ -451,8 +451,8 @@ def print_issues(issues, open_issues, bcolor, by_line=False):
         else:
             print('Issue #{0}'.format(number))
             print('Title: {0}'.format(title))
-            print('Type: {0}'.format(type_text))
-            print('Milestone: {0}'.format(milestone_text))
+            print('Type: {0}'.format(type_text[1:-1]))
+            print('Milestone: {0}'.format(milestone_text[1:-1]))
             print('Status: {0}'.format(open_text))
 
 

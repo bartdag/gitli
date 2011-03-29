@@ -18,6 +18,8 @@ children cry.
 Don't hesitate to create issues in the github bug tracker if you have a feature
 request or encounter a bug though.
 
+.. contents:: Contents
+   :backlinks: top
 
 Requirements
 ------------
@@ -140,6 +142,8 @@ Update the default milestone:
 
 ::
 
+    testgitli $ git li current
+    The current milestone is 0.1
     testgitli $ git li milestone 0.2
     testgitli $ git li new 'My Fifth Issue' 
     testgitli $ git li list 
@@ -149,12 +153,46 @@ Update the default milestone:
     #4    My Fourth Issue                                  [Task] [0.1]   - open
     #5    My Fifth Issue                                   [Task] [0.2]   - open
 
-The show command:
+The show command. Commits containing ``refs|ref|fix|fixes|close|closes
+#<issue_number>`` are listed chronologically by the show command. As opposed
+to other issue trackers, gitli does **not** automatically close an issue when
+commit contains a fix|close message.
 
 ::
 
     testgitli $ git li show 5 
-    #5    My Fifth Issue                                   [Task] [0.2]   - open
+
+    === ISSUE ===
+
+    Issue #5
+    Title: My Fifth Issue
+    Type: Task
+    Milestone: 0.5
+    Status: closed
+
+    === RELATED COMMITS ===
+
+    commit b3fdf52c0c0da3335d21b39551f498a87575d636                                                                       
+    Author: Barthelemy Dagenais <bart@xxxxxxx>
+    Date:   Thu Mar 24 08:36:46 2011 -0400
+
+        started working on showing commits related to an issue. refs #5
+
+    .gitli/.issues      |    4 ++++
+    .gitli/.issues-last |    2 +-
+    .gitli/.issues-open |    1 +
+    myfoo.py            |   22 ++++++++++++++++++----
+    4 files changed, 24 insertions(+), 5 deletions(-)
+
+    commit aaff1d05fa3e7a221888ae468cea28fd9cdeb436
+    Author: Barthelemy Dagenais <bart@xxxxxxx>
+    Date:   Fri Mar 25 07:28:25 2011 -0400
+
+        now list commits when showing an issue. refs #5
+
+    .gitli/.issues-open |    1 -
+    mybar.py            |   23 ++++++++++++++++++-----
+    2 files changed, 18 insertions(+), 6 deletions(-)
 
 The remove command:
 
@@ -221,6 +259,27 @@ Show the usage help:
       -p PATH, --path=PATH  Use this absolute path instead of the default .gitli
                             directory to store the gitli data files.
 
+Team Mode
+---------
+
+The main issue when using gitli in a team is that issue number clashes can
+happen: if Bob and Alice create an issue at the same time in their own
+repository, they may use the same issue number. When they will merge their
+changes, a conflict will occur. Although it can be manually fixed, this can be
+quite tedious because there are many files to change.
+
+gitli offers a team mode where each issue number is prefixed by the username
+(the first letter of the username by default) of the person who created the
+issue. In the case of Bob and Alice, this means that they could create at the
+same time issue b1 and a1. Using this scheme, a good merging algorithm should
+be able to automatically resolve conflicts when Bob and Alice merge their
+changes together.
+
+Todo:
+
+* Explain how to use it.
+* Give an example with a merge.
+
 Git Configuration Variables
 ---------------------------
 
@@ -232,6 +291,19 @@ Git Configuration Variables
   next time you call the ``list`` command without any option, gitli will only
   display the open issues.
 
+``git config --add gitli.log.option <options>``
+  Specifies the options that are passed to the git log command when showing an
+  issue and listing the commits. The default options are ``--stat --reverse`` 
+
+``git config --add gitli.team.active on``
+  Enables the team mode: issue numbers are prefixed with the first letter of
+  the username to prevent issue number clashes.
+
+``git config --add gitli.team.user <user>``
+  If set, this value will be used to prefix any issue number created. For
+  example, if the value is ``foo``, the first issue created will be ``foo1``,
+  then ``foo2`` and so on. Short values are more readable and easier to use on
+  the command line.
 
 License
 -------
