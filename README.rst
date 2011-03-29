@@ -35,7 +35,8 @@ Use pip or easy_install: ``easy_install gitli``
 Alternatively:
 
 #. Make the git-li script executable (e.g., ``chmod a+x git-li``).
-#. Add the git-li script to your path (e.g., ``export PATH=$PATH:/path/to/git-li``)
+#. Add the git-li directory containing git-li and gitli.py to your path 
+   (e.g., ``export PATH=$PATH:/path/to/git-li``)
 #. You are done.
 
 Usage
