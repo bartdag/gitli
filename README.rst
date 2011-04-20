@@ -271,15 +271,23 @@ quite tedious because there are many files to change.
 
 gitli offers a team mode where each issue number is prefixed by the username
 (the first letter of the username by default) of the person who created the
-issue. In the case of Bob and Alice, this means that they could create at the
-same time issue b1 and a1. Using this scheme, a good merging algorithm should
-be able to automatically resolve conflicts when Bob and Alice merge their
-changes together.
+issue. In the case of Bob and Alice, this means that they can create an issue
+in parallel (e.g., issue b1 and a1).
 
-Todo:
+Unfortunately, when Alice and Bob creates new issues in parallel, one of them
+will need to merge the gitli files.
 
-* Explain how to use it.
-* Give an example with a merge.
+
+**Using the Team Mode**
+
+Just enter the following command to use the team mode. The second command is
+optional (the username will default to the first letter of the current user).
+Make sure that all users set gitli.team.active to on!
+
+::
+    git config --add gitli.team.active on
+    git config --add gitli.team.user bob
+
 
 Git Configuration Variables
 ---------------------------
