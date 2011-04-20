@@ -285,6 +285,7 @@ optional (the username will default to the first letter of the current user).
 Make sure that all users set gitli.team.active to on!
 
 ::
+
     git config --add gitli.team.active on
     git config --add gitli.team.user bob
 
