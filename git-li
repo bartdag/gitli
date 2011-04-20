@@ -20,6 +20,7 @@ Commands:
   current                   Show the current milestone
   milestone [--up] <MILE>   Set the current milestone
   close <NUMBER>            Close the given issue
+  version                   Show the current version of git-li
 
 A few examples:
   git li init

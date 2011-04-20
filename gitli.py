@@ -13,6 +13,7 @@ import re
 
 #from traceback import print_exc
 
+CURRENT_VERSION = 0.5
 
 # Python Version Compatibility
 major = sys.version_info[0]
@@ -73,6 +74,10 @@ class BColors:
         self.CYAN = ''
         self.WHITE = ''
         self.ENDC = ''
+
+
+def upgrade_04(path, version):
+    pass
 
 
 def show_commit(issue_number):
@@ -695,6 +700,21 @@ def remove_issue(path, issue_number):
     remove_an_issue(path, issue_number)
 
 
+def upgrade(path, version):
+    '''Upgrades the gitli files when backward incompatible changes are
+       introduced.
+
+       :param path: The path of the .gitli directory.
+       :param version: The gitli version from which to upgrade
+    '''
+    if version == '0.4':
+        upgrade_04(path, version)
+        version = 0.5
+
+
+def show_version():
+    print('git-li version {0}'.format(CURRENT_VERSION))
+
 def main(options, args, parser):
     bcolor = BColors()
     if not is_colored_output():
@@ -733,3 +753,5 @@ def main(options, args, parser):
         show_milestone(path)
     elif command == 'milestone':
         edit_milestone(path, args[0].strip(), options.up)
+    elif command == 'version':
+        show_version()
