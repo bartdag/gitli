@@ -8,6 +8,8 @@ from codecs import open
 from os.path import split, join, exists
 from os import getcwd, mkdir
 import subprocess
+import getpass
+import re
 
 #from traceback import print_exc
 
@@ -18,8 +20,10 @@ minor = sys.version_info[1]
 
 if major < 3:
     rinput = raw_input
+    unicode = unicode
 else:
     rinput = input
+    unicode = str
 
 if major == 2 and minor == 6:
     check_output = lambda a: subprocess.Popen(a,
@@ -30,6 +34,14 @@ else:
 
 COLOR = ['git', 'config', '--get', 'gitli.color']
 LIST = ['git', 'config', '--get', 'gitli.list.option']
+PATH = ['git', 'config', '--get', 'gitli.path']
+TEAM_MODE = ['git', 'config', '--get', 'gitli.team.active']
+TEAM_PREFIX = ['git', 'config', '--get', 'gitli.team.user']
+SHOW_OPTIONS = ['git', 'config', '--get', 'gitli.log.option']
+SHOW = ['git', 'log', '-E', '--grep=(refs?|closes?|fix(es)?) .*#{0}\\b']
+SHOW_DEFAULT_OPTIONS = ['--stat', '--reverse']
+
+PREFIX_PATTERN = '{0}(\\d+)'
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -63,15 +75,158 @@ class BColors:
         self.ENDC = ''
 
 
+def show_commit(issue_number):
+    args = SHOW[:-1]
+    args += [SHOW[-1].format(issue_number)]
+    options = get_log_options()
+    args += options
+    print('\n=== RELATED COMMITS ===\n')
+    subprocess.call(args)
+
+
+def get_path(options_path):
+    '''Determines the path where gitli datafiles are stored.
+
+    1. Check the path option on the command line.
+    2. Check the git configuration
+    3. Use the default path <git_repos>/.gitli
+
+    :param options_path: The path option on the cli.
+    :rtype: The path where gitli datafiles are stored
+    '''
+    if options_path:
+        return options_path
+    else:
+        try:
+            path = check_output(PATH).decode('utf-8').strip()
+            if path:
+                return path
+        except Exception:
+            pass
+
+    path = getcwd()
+    while not exists(join(path, ".git")):
+        path, extra = split(path)
+        if not extra:
+            print("Unable to find a git repository. ")
+            sys.exit(1)
+
+    path = join(path, GITLIDIR)
+    return path
+
+
 def is_colored_output():
     '''
     :rtype: True if gitli.color is on in the git config.
     '''
     try:
-        value = check_output(COLOR).strip().lower().decode('utf-8')
+        value = check_output(COLOR).decode('utf-8').strip().lower()
         return value in ('auto', 'on', 'true')
     except Exception:
         return False
+
+
+def is_team_mode():
+    '''
+    :rtype: True if gitli.team.active is on in the git config.
+    '''
+    try:
+        value = check_output(TEAM_MODE).decode('utf-8').strip().lower()
+        return value in ('auto', 'on', 'true')
+    except Exception:
+        return False
+
+
+def get_team_prefix():
+    '''
+    :rtype: The issue number to use if team mode is on. Default value is the
+    first letter of the login name.
+    '''
+    try:
+        prefix = check_output(TEAM_PREFIX).decode('utf-8').strip()
+        if prefix:
+            return prefix
+    except Exception:
+        pass
+    return getpass.getuser()[0]
+
+
+def read_last_issue_number(path, add_one=True):
+    '''Reads the last issue number assigned to an issue. Use the prefix if the
+    team mode is on.
+
+    :param path: The path to the gitli repository.
+    :param add_one: If one needs to be added to the last issue_number.
+    :rtype: The last issue number.
+    '''
+    with open(join(path, LAST), 'r', encoding='utf-8') as last:
+        lines = last.readlines()
+
+    if not is_team_mode():
+        issue_number = int(lines[0].strip())
+        if add_one:
+            issue_number += 1
+    else:
+        prefix = get_team_prefix()
+        pattern = re.compile(PREFIX_PATTERN.format(prefix))
+        issue_number = None
+        for line in lines:
+            match = pattern.match(line.strip())
+            if match:
+                issue_number = int(match.group(1).strip())
+                break
+        if not issue_number:
+            issue_number = 0
+        if add_one:
+            issue_number += 1
+        issue_number = prefix + unicode(issue_number)
+
+    return unicode(issue_number)
+
+
+def write_last_issue_number(path, issue_number):
+    '''Writes the last issue number assigned to an issue. Use the prefix if the
+    team mode is on.
+
+    :param path: The path to the gitli repository.
+    :param issue_number: The last issue number to write.
+    '''
+    with open(join(path, LAST), 'r', encoding='utf-8') as last:
+        lines = last.readlines()
+
+    new_lines = []
+    if not is_team_mode():
+        new_lines = lines
+        new_lines[0] = '{0}\n'.format(issue_number)
+    else:
+        prefix = get_team_prefix()
+        pattern = re.compile(PREFIX_PATTERN.format(prefix))
+        searching = True
+        for line in lines:
+            match = searching and pattern.match(line.strip())
+            if match:
+                new_lines.append('{0}\n'.format(issue_number))
+                searching = False
+            else:
+                new_lines.append(line)
+        if searching:
+            new_lines.append('{0}\n'.format(issue_number))
+
+    with open(join(path, LAST), 'w', encoding='utf-8') as last:
+        last.writelines(new_lines)
+
+
+def get_log_options():
+    '''
+    :rtype: The default log options used by show commit.
+    '''
+    try:
+        options = check_output(SHOW_OPTIONS).decode('utf-8').strip()
+        if options:
+            return options.split(' ')
+    except Exception:
+        pass
+    return SHOW_DEFAULT_OPTIONS
 
 
 def get_default_list_filter():
@@ -84,7 +239,7 @@ def get_default_list_filter():
         if not value:
             return DEFAULT_LIST_FILTER
         else:
-            return value.strip().lower().decode('utf-8')
+            return value.decode('utf-8').strip().lower()
     except Exception:
         return DEFAULT_LIST_FILTER
 
@@ -268,7 +423,7 @@ def get_issues(path, filters, open_issues, milestones, itypes):
     return issues
 
 
-def print_issues(issues, open_issues, bcolor):
+def print_issues(issues, open_issues, bcolor, by_line=False):
     '''Prints the issues on stdout.
     [(issue_number, title, issue_type, milestone)]
 
@@ -276,6 +431,7 @@ def print_issues(issues, open_issues, bcolor):
     :param open_issues: The list of the issue numbers that are open.
     :param bcolor: An instance of the BColors class used to colorize the
     output.
+    :param by_line: Print each issue field on a separate line.
     '''
     for (number, title, type_id, milestone) in issues:
         if number in open_issues:
@@ -288,9 +444,16 @@ def print_issues(issues, open_issues, bcolor):
         milestone_text = '[' + milestone + ']'
         type_text = '[' + ITYPES[type_id - 1] + ']'
 
-        print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
-            .format(number, title, type_text, milestone_text, open_text,
-            bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
+        if not by_line:
+            print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
+                .format(number, title, type_text, milestone_text, open_text,
+                bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
+        else:
+            print('Issue #{0}'.format(number))
+            print('Title: {0}'.format(title))
+            print('Type: {0}'.format(type_text[1:-1]))
+            print('Milestone: {0}'.format(milestone_text[1:-1]))
+            print('Status: {0}'.format(open_text))
 
 
 def init(path):
@@ -316,7 +479,7 @@ def init(path):
     new_path = join(path, LAST)
     if not exists(new_path):
         with open(new_path, 'w', encoding='utf-8') as last:
-            last.write('0')
+            last.write('0\n')
 
     new_path = join(path, CURRENT)
     if not exists(new_path):
@@ -333,8 +496,7 @@ def new_issue(path, title, verbose=False):
     :param title: The title of the issue.
     :param verbose: If True, ask the user for the issue type and milestone.
     '''
-    with open(join(path, LAST), 'r', encoding='utf-8') as last:
-        issue_number = int(last.read().strip()) + 1
+    issue_number = read_last_issue_number(path)
 
     ttype = ask_type(verbose)
     milestone = ask_milestone(path, verbose)
@@ -345,8 +507,7 @@ def new_issue(path, title, verbose=False):
 
     add_open(path, issue_number)
 
-    with open(join(path, LAST), 'w', encoding='utf-8') as last:
-        last.write('{0}'.format(issue_number))
+    write_last_issue_number(path, issue_number)
 
 
 def close_issue(path, issue_number):
@@ -432,7 +593,9 @@ def show_issue(path, issue_number, bcolor=BColors()):
     issue = get_issue(path, issue_number)
     if issue is not None:
         open_issues = get_open_issues(path)
-        print_issues([issue], open_issues, bcolor)
+        print('\n=== ISSUE ===\n')
+        print_issues([issue], open_issues, bcolor, True)
+        show_commit(issue_number)
     else:
         print('Issue #{0} not found'.format(issue_number))
 
@@ -543,14 +706,13 @@ def main(options, args, parser):
 
     command = args[0]
     args = args[1:]
-    path = getcwd()
-    while not exists(join(path, ".git")):
-        path, extra = split(path)
-        if not extra:
-            print("Unable to find a git repository. ")
-            sys.exit(1)
 
-    path = join(path, GITLIDIR)
+    if options:
+        custom_path = options.path
+    else:
+        custom_path = None
+    path = get_path(custom_path)
+
     if command == 'init':
         init(path)
     elif command in ('new', 'add', 'open'):
@@ -567,8 +729,7 @@ def main(options, args, parser):
         edit_issue(path, args[0].strip())
     elif command in ('remove', 'delete'):
         remove_issue(path, args[0].strip())
+    elif command == 'current':
+        show_milestone(path)
     elif command == 'milestone':
-        if len(args) == 0:
-            show_milestone(path)
-        else:
-            edit_milestone(path, args[0].strip(), options.up)
+        edit_milestone(path, args[0].strip(), options.up)

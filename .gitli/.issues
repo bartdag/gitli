@@ -82,3 +82,51 @@ add comments to please ohloh :-)
 add a delete command
 1
 0.3
+22
+add a cli roadmap command
+1
+0.5
+23
+add a path variable in config
+1
+0.5
+24
+add a comment command
+1
+0.5
+26
+add a gitli-upgrade command
+1
+0.5
+27
+add a version option
+1
+0.5
+28
+change milestone without arg to current (or other)
+1
+0.5
+29
+add issue number prefix based on username. should be optional.
+1
+0.5
+30
+update doc for team mode
+1
+0.5
+31
+add a newline everywhere
+1
+0.5
+32
+add a close date on the issues (maybe more than one date...)
+1
+0.5
+33
+add a timeline for issues (might be tough...
+1
+0.5
+34
+add github mode to link gitli with github issues
+1
+0.5
