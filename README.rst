@@ -3,7 +3,7 @@ gitli - Git Lightweight Issue Tracking System
 
 :Authors:
   Barthelemy Dagenais
-:Version: 0.4
+:Version: 0.5
 
 gitli is a simple git extension to manage issues in single-developer projects.
 
@@ -315,6 +315,7 @@ Git Configuration Variables
   example, if the value is ``foo``, the first issue created will be ``foo1``,
   then ``foo2`` and so on. Short values are more readable and easier to use on
   the command line.
+
 
 License
 -------

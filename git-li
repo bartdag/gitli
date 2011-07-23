@@ -15,6 +15,7 @@ Commands:
   new  [--edit] <TITLE>     Create a new issue for this repository
   show <NUMBER>             Show the given issue
   edit <NUMBER>             Edit the given issue
+  comment <NUMBER> <COMNT>  Add a comment to the given issue
   reopen <NUMBER>           Reopen the given issue
   remove <NUMBER>           Remove the given issue (removes all info)
   current                   Show the current milestone

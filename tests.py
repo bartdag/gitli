@@ -193,12 +193,12 @@ class TestGitli(unittest.TestCase):
         call(['git', 'config', 'gitli.team.active', 'on'])
         call(['git', 'config', 'gitli.team.user', 'bob'])
         self.assertTrue(gitli.is_team_mode())
-        self.assertEqual('bob1', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('bob-1', gitli.read_last_issue_number(self.gitlipath))
         self.assertEqual('0\n', read_file(gitli.LAST))
         gitli.main(options, ['new', 'Hello World 1'], None)
         self.assertTrue(gitli.is_team_mode())
-        self.assertEqual('bob2', gitli.read_last_issue_number(self.gitlipath))
-        self.assertEqual('0\nbob1\n', read_file(gitli.LAST))
+        self.assertEqual('bob-2', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('0\nbob-1\n', read_file(gitli.LAST))
 
     def test_mixed_team_mode(self):
         options = self.Options(edit=False, up=False, path='')
@@ -212,8 +212,24 @@ class TestGitli(unittest.TestCase):
         call(['git', 'config', 'gitli.team.user', 'bob'])
         gitli.main(options, ['new', 'Hello World 2'], None)
         gitli.main(options, ['new', 'Hello World 3'], None)
-        self.assertEqual('bob3', gitli.read_last_issue_number(self.gitlipath))
-        self.assertEqual('1\nbob2\n', read_file(gitli.LAST))
+        self.assertEqual('bob-3', gitli.read_last_issue_number(self.gitlipath))
+        self.assertEqual('1\nbob-2\n', read_file(gitli.LAST))
+
+    def test_write_comment(self):
+        options = self.Options(edit=False, up=False, path='')
+        call(['git', 'init'])
+        gitli.main(options, ['init', ], None)
+        gitli.main(options, ['new', 'Hello World 1'], None)
+        gitli.main(options, ['new', 'Hello World 2'], None)
+        gitli.main(options, ['comment', '1', 'A'], None)
+        gitli.main(options, ['comment', '2', 'B'], None)
+        call(['git', 'config', 'gitli.team.active', 'on'])
+        call(['git', 'config', 'gitli.team.user', 'bob'])
+        gitli.main(options, ['new', 'Hello World 2'], None)
+        gitli.main(options, ['comment', 'bob-1', 'C'], None)
+        lines = read_lines(gitli.COMMENTS)
+        lines2 = ['2\n', 'B\n', 'bob-1\n', 'C\n', '1\n', 'A\n']
+        self.assertEqual(lines, lines2)
 
 
 if __name__ == '__main__':

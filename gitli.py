@@ -3,6 +3,7 @@
 
 # For python 2 compatibility
 from __future__ import unicode_literals
+import os
 import sys
 from codecs import open
 from os.path import split, join, exists
@@ -42,7 +43,9 @@ SHOW_OPTIONS = ['git', 'config', '--get', 'gitli.log.option']
 SHOW = ['git', 'log', '-E', '--grep=(refs?|closes?|fix(es)?) .*#{0}\\b']
 SHOW_DEFAULT_OPTIONS = ['--stat', '--reverse']
 
-PREFIX_PATTERN = '{0}(\\d+)'
+PREFIX_PATTERN = '^{0}-(\\d+)$'
+
+PREFIX_PATTERN_ALL = '^(?:.+-)?(\\d+)$'
 
 DEFAULT_LIST_FILTER = 'all'
 
@@ -53,6 +56,7 @@ OPEN = '.issues-open'
 LAST = '.issues-last'
 CURRENT = '.issues-current'
 COMMENTS = '.issues-comments'
+COMMENTS_TEMP = '.issues-comments-temp'
 MSEPARATOR = ','
 OSEPARATOR = '\n'
 
@@ -156,6 +160,23 @@ def get_team_prefix():
     return getpass.getuser()[0]
 
 
+def get_issue_number(line, use_current_user=True):
+    if not is_team_mode():
+        issue_number = int(line.strip())
+    else:
+        if use_current_user:
+            prefix = get_team_prefix()
+            pattern = re.compile(PREFIX_PATTERN.format(prefix))
+        else:
+            pattern = re.compile(PREFIX_PATTERN_ALL)
+        match = pattern.match(line.strip())
+        if match:
+            issue_number = int(match.group(1).strip())
+        else:
+            issue_number = None
+    return issue_number
+
+
 def read_last_issue_number(path, add_one=True):
     '''Reads the last issue number assigned to an issue. Use the prefix if the
     team mode is on.
@@ -168,23 +189,22 @@ def read_last_issue_number(path, add_one=True):
         lines = last.readlines()
 
     if not is_team_mode():
-        issue_number = int(lines[0].strip())
+        prefix = ''
+        issue_number = get_issue_number(lines[0])
         if add_one:
             issue_number += 1
     else:
         prefix = get_team_prefix()
-        pattern = re.compile(PREFIX_PATTERN.format(prefix))
         issue_number = None
         for line in lines:
-            match = pattern.match(line.strip())
-            if match:
-                issue_number = int(match.group(1).strip())
+            issue_number = get_issue_number(line)
+            if issue_number is not None:
                 break
-        if not issue_number:
+        if issue_number is None:
             issue_number = 0
         if add_one:
             issue_number += 1
-        issue_number = prefix + unicode(issue_number)
+        issue_number = prefix + '-' + unicode(issue_number)
 
     return unicode(issue_number)
 
@@ -492,6 +512,59 @@ def init(path):
             current.write('0.1')
 
 
+def show_comment(path, issue_number):
+    comments = []
+    int_issue_number = get_issue_number(issue_number, False)
+    with open(join(path, COMMENTS), 'r', encoding='utf-8') as rcomments:
+        line = rcomments.readline()
+        while (line != ''):
+            number = get_issue_number(line, False)
+
+            if line.strip() == issue_number:
+                comments.append(rcomments.readline().strip())
+            elif int_issue_number > number:
+                break
+            else:
+                rcomments.readline()
+
+            line = rcomments.readline()
+    
+    print('\n=== COMMENTS ===\n')
+    if comments != []:
+        for i, comment in enumerate(reversed(comments)):
+            print('  {0}: {1}'.format(i, comment))
+
+
+def add_comment(path, issue_number, comment):
+    finish = False
+    int_issue_number = get_issue_number(issue_number, False)
+
+    with open(join(path, COMMENTS), 'r', encoding='utf-8') as rcomments:
+        with open(join(path, COMMENTS_TEMP), 'w', encoding='utf-8') \
+                as wcomments:
+            line = rcomments.readline()
+            while (line != ''):
+                number = get_issue_number(line, False)
+                if finish:
+                    wcomments.write(line)
+                    wcomments.write(rcomments.readline())
+                elif number is None or number > int_issue_number:
+                    wcomments.write(line)
+                    wcomments.write(rcomments.readline())
+                else:
+                    wcomments.write('{0}\n'.format(issue_number))
+                    wcomments.write('{0}\n'.format(comment))
+                    wcomments.write(line)
+                    wcomments.write(rcomments.readline())
+                    finish = True
+                line = rcomments.readline()
+            if not finish:
+                wcomments.write('{0}\n'.format(issue_number))
+                wcomments.write('{0}\n'.format(comment))
+
+    os.rename(join(path, COMMENTS_TEMP), join(path, COMMENTS))
+
+
 def new_issue(path, title, verbose=False):
     '''Creates a new issue: add the issue to the issues file, add the issue
     number to the issues-open file, and increment the last issue number in
@@ -600,6 +673,7 @@ def show_issue(path, issue_number, bcolor=BColors()):
         open_issues = get_open_issues(path)
         print('\n=== ISSUE ===\n')
         print_issues([issue], open_issues, bcolor, True)
+        show_comment(path, issue_number)
         show_commit(issue_number)
     else:
         print('Issue #{0} not found'.format(issue_number))
@@ -715,6 +789,12 @@ def upgrade(path, version):
 def show_version():
     print('git-li version {0}'.format(CURRENT_VERSION))
 
+
+def write_comment(path, issue_number, comment):
+    new_comment = comment.replace('\n', ' ').replace('\r', '')
+    add_comment(path, issue_number, new_comment)
+
+
 def main(options, args, parser):
     bcolor = BColors()
     if not is_colored_output():
@@ -753,5 +833,7 @@ def main(options, args, parser):
         show_milestone(path)
     elif command == 'milestone':
         edit_milestone(path, args[0].strip(), options.up)
+    elif command == 'comment':
+        write_comment(path, args[0].strip(), args[1].strip())
     elif command == 'version':
         show_version()
