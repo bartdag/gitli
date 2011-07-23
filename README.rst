@@ -154,6 +154,13 @@ Update the default milestone:
     #4    My Fourth Issue                                  [Task] [0.1]   - open
     #5    My Fifth Issue                                   [Task] [0.2]   - open
 
+The comment comment:
+
+::
+
+    testgitli $ git li comment 5 'This is the first comment'
+    testgitli $ git li comment 5 'This is the second comment'
+
 The show command. Commits containing ``refs|ref|fix|fixes|close|closes
 #<issue_number>`` are listed chronologically by the show command. As opposed
 to other issue trackers, gitli does **not** automatically close an issue when
@@ -170,6 +177,11 @@ commit contains a fix|close message.
     Type: Task
     Milestone: 0.5
     Status: closed
+
+    === COMMENTS ===
+
+    0: This is the first comment
+    1: This is the second comment
 
     === RELATED COMMITS ===
 
@@ -222,7 +234,7 @@ Show the usage help:
 
 ::
 
-    testgitli $ git-li --help
+    testgitli $ git li -h
     Usage: git-li <command> [command-options]
 
     Commands:
@@ -231,6 +243,7 @@ Show the usage help:
     new  [--edit] <TITLE>     Create a new issue for this repository
     show <NUMBER>             Show the given issue
     edit <NUMBER>             Edit the given issue
+    comment <NUMBER> <COMNT>  Add a comment to the given issue
     reopen <NUMBER>           Reopen the given issue
     remove <NUMBER>           Remove the given issue (removes all info)
     current                   Show the current milestone
