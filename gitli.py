@@ -532,7 +532,7 @@ def show_comment(path, issue_number):
     print('\n=== COMMENTS ===\n')
     if comments != []:
         for i, comment in enumerate(reversed(comments)):
-            print('  {0}: {1}'.format(i, comment))
+            print('  {0}: {1}'.format(i+1, comment))
 
 
 def add_comment(path, issue_number, comment):

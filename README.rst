@@ -180,8 +180,8 @@ commit contains a fix|close message.
 
     === COMMENTS ===
 
-    0: This is the first comment
-    1: This is the second comment
+    1: This is the first comment
+    2: This is the second comment
 
     === RELATED COMMITS ===
 
