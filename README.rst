@@ -154,7 +154,7 @@ Update the default milestone:
     #4    My Fourth Issue                                  [Task] [0.1]   - open
     #5    My Fifth Issue                                   [Task] [0.2]   - open
 
-The comment comment:
+The comment command:
 
 ::
 
