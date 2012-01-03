@@ -8,6 +8,7 @@ from codecs import open
 from os.path import split, join, exists
 from os import getcwd, mkdir
 import subprocess
+import unicodedata
 
 #from traceback import print_exc
 
@@ -288,8 +289,8 @@ def print_issues(issues, open_issues, bcolor):
         milestone_text = '[' + milestone + ']'
         type_text = '[' + ITYPES[type_id - 1] + ']'
 
-        print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
-            .format(number, title, type_text, milestone_text, open_text,
+        print('{5}#{0:<4}{9} {6}{1}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
+            .format(number, align(title, 48), type_text, milestone_text, open_text,
             bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
 
 
@@ -572,3 +573,22 @@ def main(options, args, parser):
             show_milestone(path)
         else:
             edit_milestone(path, args[0].strip(), options.up)
+
+def align(s, width):
+    return s + ' ' * round(width - strwidth(s))
+
+def strwidth(s, ambiwidth=1):
+  if ambiwidth == 2:
+    double = ('W', 'A')
+  elif ambiwidth == 1:
+    double = ('W',)
+  else:
+    raise ValueError('ambiwidth can be only 1 or 2')
+
+  count = 0
+  for i in s:
+    if unicodedata.east_asian_width(i) in double:
+      count += 2
+      continue
+    count += 1
+  return count
