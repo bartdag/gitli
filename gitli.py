@@ -11,6 +11,7 @@ from os import getcwd, mkdir
 import subprocess
 import getpass
 import re
+import unicodedata
 
 #from traceback import print_exc
 
@@ -91,6 +92,27 @@ def show_commit(issue_number):
     args += options
     print('\n=== RELATED COMMITS ===\n')
     subprocess.call(args)
+
+
+def align(s, width):
+    return s + ' ' * (width - strwidth(s))
+
+
+def strwidth(s, ambiwidth=1):
+    if ambiwidth == 2:
+        double = ('W', 'A')
+    elif ambiwidth == 1:
+        double = ('W',)
+    else:
+        raise ValueError('ambiwidth can be only 1 or 2')
+
+    count = 0
+    for i in s:
+        if unicodedata.east_asian_width(i) in double:
+            count += 2
+            continue
+        count += 1
+    return count
 
 
 def get_path(options_path):
@@ -470,9 +492,10 @@ def print_issues(issues, open_issues, bcolor, by_line=False):
         type_text = '[' + ITYPES[type_id - 1] + ']'
 
         if not by_line:
-            print('{5}#{0:<4}{9} {6}{1:<48}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
-                .format(number, title, type_text, milestone_text, open_text,
-                bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color, bcolor.ENDC))
+            print('{5}#{0:<4}{9} {6}{1}{9} {7}{2:<6} {3:<7}{9} - {8}{4}{9}'
+                .format(number, align(title, 48), type_text, milestone_text,
+                    open_text, bcolor.CYAN, bcolor.WHITE, bcolor.BLUE, color,
+                    bcolor.ENDC))
         else:
             print('Issue #{0}'.format(number))
             print('Title: {0}'.format(title))
@@ -528,11 +551,11 @@ def show_comment(path, issue_number):
                 rcomments.readline()
 
             line = rcomments.readline()
-    
+
     print('\n=== COMMENTS ===\n')
     if comments != []:
         for i, comment in enumerate(reversed(comments)):
-            print('  {0}: {1}'.format(i+1, comment))
+            print('  {0}: {1}'.format(i + 1, comment))
 
 
 def add_comment(path, issue_number, comment):
@@ -832,7 +855,10 @@ def main(options, args, parser):
     elif command == 'current':
         show_milestone(path)
     elif command == 'milestone':
-        edit_milestone(path, args[0].strip(), options.up)
+        if len(args) == 0:
+            show_milestone(path)
+        else:
+            edit_milestone(path, args[0].strip(), options.up)
     elif command == 'comment':
         write_comment(path, args[0].strip(), args[1].strip())
     elif command == 'version':
